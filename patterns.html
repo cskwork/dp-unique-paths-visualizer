@@ -1,0 +1,136 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Pattern Field Guide: Algorithm Patterns, Visualized</title>
+<meta name="description" content="A field guide to the recurring algorithm patterns behind this site's interactive problems: what each one is, when to reach for it, and which problems on this site use it.">
+<link rel="icon" href="assets/img/favicon.svg">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/css/base.css">
+<style>
+  /* Bespoke to the pattern field guide: the jump-nav, each pattern's figure, and its
+     cross-linked "problems using this pattern" list. */
+  .field-guide{padding-top:clamp(48px,7vw,72px)}
+
+  .jumpnav{display:flex;flex-wrap:wrap;gap:8px;margin-top:28px}
+  .jumpnav a{
+    font-family:var(--mono);font-size:12.5px;font-weight:600;color:var(--text-muted);
+    background:var(--surface);border:1px solid var(--border);border-radius:999px;
+    padding:6px 12px;text-decoration:none;
+  }
+  .jumpnav a:hover{color:var(--text);border-color:var(--text-faint)}
+
+  .pattern-section .order{font-family:var(--mono);font-size:12px;color:var(--text-faint)}
+  .pattern-figure{display:block;margin:24px auto 0;max-width:560px;text-decoration:none}
+  .pattern-figure img{
+    display:block;width:100%;height:auto;border-radius:var(--radius);border:1px solid var(--border);
+  }
+  .pattern-figure-cap{text-align:center;font-size:13px;color:var(--text-faint);margin-top:10px}
+
+  .related-problems{margin-top:32px}
+  .related-problems h3{
+    font-family:var(--mono);font-size:13px;letter-spacing:.04em;color:var(--text-muted);
+    font-weight:600;text-transform:uppercase;margin-bottom:14px;
+  }
+  .related-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:14px}
+</style>
+</head>
+<body>
+<a class="skip-link" href="#main">Skip to content</a>
+
+<nav class="nav">
+  <div class="wrap">
+    <a class="wordmark" href="index.html"><span class="dot">▣</span> algo-patterns</a>
+    <ul class="nav-links">
+      <li><a href="index.html">Problems</a></li>
+      <li><a href="patterns.html" aria-current="page">Patterns</a></li>
+    </ul>
+  </div>
+</nav>
+
+<main id="main">
+  <section class="field-guide">
+    <div class="wrap">
+      <p class="eyebrow">Pattern Field Guide</p>
+      <h1>The patterns behind the problems</h1>
+      <p class="lede">Most algorithm problems are a familiar pattern wearing a new costume. Skim these first, then jump into <a href="index.html">the problem library</a> to watch each one play out step by step.</p>
+      <nav class="jumpnav" id="jumpnav" aria-label="Jump to a pattern"></nav>
+    </div>
+  </section>
+
+  <div id="patternSections"></div>
+</main>
+
+<footer>
+  <div class="wrap footer-row">
+    <span>Algorithm Patterns, Visualized. Back to the <a href="index.html">problem library</a>.</span>
+    <span>Runs entirely in your browser. Respects reduced motion.</span>
+  </div>
+</footer>
+
+<script src="assets/js/patterns-data.js"></script>
+<script src="assets/js/problems-data.js"></script>
+<script>
+(function () {
+  "use strict";
+
+  var jumpnavEl = document.getElementById("jumpnav");
+  var sectionsEl = document.getElementById("patternSections");
+
+  if (typeof PATTERNS === "undefined") {
+    sectionsEl.innerHTML = '<div class="wrap"><div class="error-note">Could not load the pattern list, check that assets/js/patterns-data.js is linked correctly.</div></div>';
+    return;
+  }
+
+  var patterns = PATTERNS.slice().sort(function (a, b) { return a.order - b.order; });
+  var problems = typeof PROBLEMS !== "undefined" ? PROBLEMS : [];
+
+  function relatedProblemsHtml(pattern) {
+    var related = problems.filter(function (p) { return p.pattern === pattern.title; });
+    if (!related.length) {
+      return '<div class="empty-note">No problems on this site use this pattern yet, be the first to add one.</div>';
+    }
+    var cards = related.map(function (p) {
+      var diffClass = "difficulty-" + p.difficulty.toLowerCase();
+      return '<a class="problem-card" href="' + p.path + '">' +
+        '<div class="tag-row"><span class="tag ' + diffClass + '">' + p.difficulty + '</span></div>' +
+        '<h3>' + p.title + '</h3>' +
+        '<p>' + p.summary + '</p>' +
+      '</a>';
+    }).join("");
+    return '<div class="related-grid">' + cards + '</div>';
+  }
+
+  function sectionHtml(pattern, index) {
+    var orderLabel = String(pattern.order).padStart(2, "0");
+    return (
+      '<section class="pattern-section" id="' + pattern.slug + '">' +
+        '<div class="wrap">' +
+          '<p class="order">Pattern ' + orderLabel + '</p>' +
+          '<h2>' + pattern.title + '</h2>' +
+          '<p class="lede">' + pattern.tagline + '</p>' +
+          '<a class="pattern-figure" href="' + pattern.image + '" target="_blank" rel="noopener">' +
+            '<img src="' + pattern.image + '" alt="' + pattern.imageAlt + '" width="1055" height="1491">' +
+          '</a>' +
+          '<p class="pattern-figure-cap">Click to view full size.</p>' +
+          '<div class="related-problems">' +
+            '<h3>Problems on this site using this pattern</h3>' +
+            relatedProblemsHtml(pattern) +
+          '</div>' +
+        '</div>' +
+      '</section>'
+    );
+  }
+
+  jumpnavEl.innerHTML = patterns.map(function (p) {
+    return '<a href="#' + p.slug + '">' + p.title + '</a>';
+  }).join("");
+
+  sectionsEl.innerHTML = patterns.map(sectionHtml).join("");
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,256 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<!-- FILL: "<Problem Name>: <Pattern Name>, Visualized" -->
+<title>Problem Title: Pattern Name, Visualized</title>
+<!-- FILL: one sentence, what the visualizer below lets the reader see happen -->
+<meta name="description" content="FILL: one-sentence description of this problem and its pattern.">
+<link rel="icon" href="../assets/img/favicon.svg">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../assets/css/base.css">
+<style>
+  /* BESPOKE: this problem's visualization CSS goes here -- the grid/array/diagram classes
+     that are specific to its visual metaphor (see problems/unique-paths.html for a worked
+     example: .dp-grid/.dp-cell, .idea-diagram, .mini-grid, .result-table). Do not add chrome
+     here (nav, buttons, code panel, cards) -- that's already in assets/css/base.css.
+     If this visualization needs a layout-critical custom property (a cell size, a track
+     count, etc.), define it in a :root block HERE, never in base.css -- an undefined custom
+     property silently invalidates the whole declaration that reads it. */
+</style>
+</head>
+<body>
+<a class="skip-link" href="#main">Skip to content</a>
+
+<nav class="nav">
+  <div class="wrap">
+    <a class="wordmark" href="../index.html"><span class="dot">▣</span> algo-patterns</a>
+    <ul class="nav-links">
+      <li><a href="../index.html" aria-current="page">Problems</a></li>
+      <li><a href="../patterns.html">Patterns</a></li>
+    </ul>
+  </div>
+</nav>
+
+<main id="main">
+
+  <!-- MANDATORY: hero -->
+  <section class="hero" id="top">
+    <div class="wrap hero-grid">
+      <div>
+        <!-- FILL: "<Pattern Name> · <Sub-theme>" -->
+        <p class="eyebrow">Pattern Name · Sub-theme</p>
+        <!-- FILL: problem title -->
+        <h1>Problem Title</h1>
+        <!-- FILL: the problem statement in plain language, 1-3 sentences -->
+        <p class="lede">FILL: what the reader is solving for.</p>
+        <!-- OPTIONAL: delete this pill if the problem has no single tidy recurrence/formula line -->
+        <div class="formula-pill"><span class="mono">FILL: formula(x) = …</span></div>
+        <p class="formula-note muted">FILL: one line restating what the formula means.</p>
+        <a class="scroll-cue" href="#visualizer">
+          See it build
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M6 9l6 6 6-6"/></svg>
+        </a>
+      </div>
+      <div class="hero-visual">
+        <!-- FILL: a small static preview of the solved/final state -->
+        <p class="hero-visual-cap">FILL: one-line caption under the preview.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- MANDATORY: problem statement -->
+  <section id="problem">
+    <div class="wrap">
+      <p class="eyebrow">The Problem</p>
+      <h2>FILL: short section title</h2>
+      <p class="lede">FILL: restate the problem and its constraints precisely.</p>
+      <!-- FILL: a small static diagram of the input shape, plus any callout cards for
+           boundary conditions or special cases (see .callout-row/.callout in base.css) -->
+    </div>
+  </section>
+
+  <!-- MANDATORY: the explanation. The 3-box diagram shape below is optional-in-form -- use
+       prose + a formula line instead if this pattern doesn't fit a box-and-arrow diagram. -->
+  <section id="idea">
+    <div class="wrap">
+      <p class="eyebrow">The Key Idea</p>
+      <h2>FILL: the insight, stated as a claim</h2>
+      <p class="lede">FILL: why that claim is true.</p>
+      <!-- FILL or DELETE: bespoke diagram (see .idea-diagram in problems/unique-paths.html) -->
+      <div class="derivation">FILL: the recurrence/formula, restated</div>
+    </div>
+  </section>
+
+  <!-- MANDATORY: the centerpiece. The 2D/1D-style mode toggle (.seg) is OPTIONAL -- most
+       problems have exactly one visualization mode; delete the .seg block and the mode
+       JS below if so. -->
+  <section id="visualizer">
+    <div class="wrap">
+      <p class="eyebrow">Try It</p>
+      <h2>FILL: what the visualizer demonstrates</h2>
+      <p class="lede">FILL: how to use it (play / step through it).</p>
+
+      <div class="viz-panel">
+        <div class="viz-toolbar">
+          <!-- OPTIONAL: delete this whole .seg block if there's only one visualization mode -->
+          <div class="seg" role="group" aria-label="Visualization mode">
+            <button id="modeA" aria-pressed="true">Mode A</button>
+            <button id="modeB" aria-pressed="false">Mode B</button>
+          </div>
+          <div class="transport">
+            <button class="ctrl-btn" id="btnReset" aria-label="Reset">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M3 12a9 9 0 1 1 3 6.7"/><path d="M3 4v5h5"/></svg>
+            </button>
+            <button class="ctrl-btn" id="btnBack" aria-label="Step back">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M15 6l-6 6 6 6"/></svg>
+            </button>
+            <button class="ctrl-btn primary" id="btnPlay" aria-label="Play">
+              <svg id="iconPlay" viewBox="0 0 24 24" fill="currentColor"><path d="M7 5l13 7-13 7z"/></svg>
+              <svg id="iconPause" viewBox="0 0 24 24" fill="currentColor" style="display:none"><path d="M7 5h3v14H7zM14 5h3v14h-3z"/></svg>
+            </button>
+            <button class="ctrl-btn" id="btnFwd" aria-label="Step forward">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"/></svg>
+            </button>
+            <button class="ctrl-btn speed-btn" id="btnSpeed">1×</button>
+          </div>
+          <p class="step-readout">Step <b id="stepNow">0</b> / <span id="stepMax">0</span></p>
+        </div>
+
+        <!-- BESPOKE: the actual visualization markup goes here (a grid, an array strip, a
+             number line, ...). Give its container an id your script can render into. -->
+        <p class="row-tag" id="rowTag"></p>
+        <div class="grid-stage"><div id="vizStage"></div></div>
+
+        <div class="formula-readout" id="formulaReadout" aria-live="polite">Press play or step forward to begin.</div>
+      </div>
+      <!-- FILL or DELETE: a one-line legend for any color-coded highlighting used above -->
+      <p class="viz-caption">FILL: legend, e.g. "the amber ring marks …".</p>
+    </div>
+  </section>
+
+  <!-- OPTIONAL: only for problems whose final answer is a fully-resolved structure (a grid,
+       an array). A single-value answer reads better as a one-line callout instead -- delete
+       this whole section in that case. -->
+  <section id="result">
+    <div class="wrap">
+      <p class="eyebrow">The Result</p>
+      <h2>FILL: section title</h2>
+      <p class="lede">FILL: one line framing the final state.</p>
+      <!-- FILL: a static table/grid of the fully-solved structure -->
+    </div>
+  </section>
+
+  <!-- MANDATORY: code panel, 1+ tabs (CodePanel.create below controls tab count) -->
+  <section id="code">
+    <div class="wrap">
+      <p class="eyebrow">The Code</p>
+      <h2>FILL: section title</h2>
+      <p class="lede">FILL: what's different between the tabs (or omit if there's only one).</p>
+
+      <div class="editor">
+        <div class="editor-bar">
+          <div class="traffic"><span></span><span></span><span></span></div>
+          <div class="editor-tabs" role="tablist" aria-label="Code samples">
+            <!-- one <button role="tab"> per CodePanel tabs[] entry; add/remove together -->
+            <button role="tab" id="tabA" aria-selected="true">Solution.java</button>
+          </div>
+        </div>
+        <div class="editor-body"><pre id="codeBody"></pre></div>
+        <p class="editor-note" id="codeNote"></p>
+      </div>
+    </div>
+  </section>
+
+  <!-- MANDATORY: complexity (auto-fits 1 card or several, see base.css) -->
+  <section id="complexity">
+    <div class="wrap">
+      <p class="eyebrow">Complexity</p>
+      <h2>FILL: section title</h2>
+      <div class="complexity-row">
+        <div class="complexity-card">
+          <h3>FILL: approach name</h3>
+          <div class="complexity-stat"><span class="muted">Time</span><b>FILL: O(…)</b></div>
+          <div class="complexity-stat"><span class="muted">Space</span><b>FILL: O(…)</b></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- MANDATORY: this is what gives the site a throughline across hundreds of problems --
+       the natural future cross-link point ("same shape as <other problem>"). -->
+  <section id="pattern">
+    <div class="wrap">
+      <p class="eyebrow">Pattern To Remember</p>
+      <div class="pattern-card">
+        <p class="lead">FILL: the generalized claim, stated so it transfers to other problems.</p>
+        <p class="pattern-strip">FILL: the abstracted formula/shape.</p>
+        <p class="lede">FILL: name 2-3 other problems with the same shape, if you know any.</p>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<footer>
+  <div class="wrap footer-row">
+    <!-- FILL: link to this problem's pattern section, e.g. ../patterns.html#dynamic-programming -->
+    <span>Part of <a href="../index.html">Algorithm Patterns, Visualized</a>. See this pattern in the <a href="../patterns.html#FILL-pattern-slug">FILL Pattern Name field guide</a>.</span>
+    <span>Runs entirely in your browser. Respects reduced motion.</span>
+  </div>
+</footer>
+
+<script src="../assets/js/step-player.js"></script>
+<script src="../assets/js/code-panel.js"></script>
+<script>
+(function(){
+  "use strict";
+
+  // BESPOKE: compute this problem's full state once, then derive a flat list of "steps" --
+  // one entry per thing the visualizer reveals, in the order it should reveal them. Keep
+  // this pure (no DOM) so render functions can replay it at any step index, including
+  // stepping backward and switching modes mid-playthrough (see computeOneDStateAt in
+  // problems/unique-paths.html for why replay-from-scratch beats incremental mutation).
+  var TOTAL = 0; // FILL: total number of steps
+
+  // BESPOKE: render the visualization at a given step index into #vizStage / #rowTag.
+  function renderAtStep(stepIndex) {
+    // FILL
+  }
+
+  var player = StepPlayer.create({ totalSteps: TOTAL || 1, onChange: renderAtStep });
+
+  // OPTIONAL: only if this problem has a second visualization mode (delete along with the
+  // .seg markup above if not). Re-renders the SAME step in the new mode -- it must not
+  // advance playback, so call renderAtStep(player.current()) directly, not player.goTo(...).
+  // var mode = "a";
+  // function setMode(next) {
+  //   mode = next;
+  //   document.getElementById("modeA").setAttribute("aria-pressed", String(next === "a"));
+  //   document.getElementById("modeB").setAttribute("aria-pressed", String(next === "b"));
+  //   renderAtStep(player.current());
+  // }
+  // document.getElementById("modeA").addEventListener("click", function () { setMode("a"); });
+  // document.getElementById("modeB").addEventListener("click", function () { setMode("b"); });
+
+  CodePanel.create({
+    types: ["Solution"], // FILL: any custom class/type names this code uses (ListNode, etc.)
+    tabs: [
+      {
+        id: "tabA",
+        note: "FILL: one line explaining this approach.",
+        lines: [
+          // FILL: [text, kindOrNull] pairs -- kind is "cm" for a comment line, else null
+          ["class Solution {", null],
+          ["}", null]
+        ]
+      }
+    ]
+  });
+})();
+</script>
+</body>
+</html>

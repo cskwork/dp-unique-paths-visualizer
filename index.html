@@ -1,0 +1,194 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Algorithm Patterns, Visualized</title>
+<meta name="description" content="Interactive, step-through visualizations of classic algorithm problems, organized by the pattern each one teaches.">
+<link rel="icon" href="assets/img/favicon.svg">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/css/base.css">
+<style>
+  /* Bespoke to the home page: search/filter controls and the problem card grid. */
+  .browse{padding-top:clamp(48px,7vw,72px)}
+
+  .search-row{margin-top:32px}
+  .search-row label{display:block;font-size:13px;color:var(--text-muted);margin-bottom:8px;font-weight:500}
+  .search-input{
+    width:100%;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);
+    padding:13px 16px;font-family:var(--sans);font-size:15px;color:var(--text);
+  }
+  .search-input::placeholder{color:var(--text-faint)}
+
+  .filter-group{margin-top:18px;display:flex;flex-wrap:wrap;gap:10px;align-items:center}
+  .filter-group .filter-label{font-size:13px;color:var(--text-faint);margin-right:2px}
+  .chip{
+    border:1px solid var(--border);background:var(--surface);color:var(--text-muted);
+    font-family:var(--sans);font-size:13px;font-weight:500;padding:7px 14px;border-radius:999px;cursor:pointer;
+    transition:background .2s var(--ease),color .2s var(--ease),border-color .2s var(--ease);
+  }
+  .chip:hover{border-color:var(--text-faint);color:var(--text)}
+  .chip[aria-pressed="true"]{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
+
+  .result-bar{margin-top:22px;font-family:var(--mono);font-size:12.5px;color:var(--text-faint)}
+
+  .problem-grid{
+    display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:18px;margin-top:18px;
+  }
+</style>
+</head>
+<body>
+<a class="skip-link" href="#main">Skip to content</a>
+
+<nav class="nav">
+  <div class="wrap">
+    <a class="wordmark" href="index.html"><span class="dot">▣</span> algo-patterns</a>
+    <ul class="nav-links">
+      <li><a href="index.html" aria-current="page">Problems</a></li>
+      <li><a href="patterns.html">Patterns</a></li>
+    </ul>
+  </div>
+</nav>
+
+<main id="main">
+  <section class="browse">
+    <div class="wrap">
+      <p class="eyebrow">Interactive Problem Library</p>
+      <h1>Algorithm Patterns, Visualized</h1>
+      <p class="lede">Step through real recurrences and data structures one move at a time, then read the pattern that ties them together. Start with a problem below, or browse the <a href="patterns.html">pattern field guide</a> first.</p>
+
+      <div class="search-row">
+        <label for="searchInput">Search problems</label>
+        <input class="search-input" type="search" id="searchInput" placeholder="Search by title or summary…" autocomplete="off">
+      </div>
+
+      <div class="filter-group" id="patternFilters" role="group" aria-label="Filter by pattern">
+        <span class="filter-label">Pattern:</span>
+      </div>
+      <div class="filter-group" id="difficultyFilters" role="group" aria-label="Filter by difficulty">
+        <span class="filter-label">Difficulty:</span>
+      </div>
+
+      <p class="result-bar" id="resultBar" aria-live="polite"></p>
+
+      <div class="problem-grid" id="problemGrid"></div>
+      <div class="empty-note" id="emptyState" hidden>
+        <p>No problems match <span id="emptyQuery"></span>.</p>
+        <button type="button" id="clearFilters">Clear filters</button>
+      </div>
+      <div class="error-note" id="errorState" hidden>
+        Could not load the problem list, check that assets/js/problems-data.js is linked correctly.
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer>
+  <div class="wrap footer-row">
+    <span>Algorithm Patterns, Visualized. Browse the <a href="patterns.html">pattern field guide</a>.</span>
+    <span>Runs entirely in your browser. Respects reduced motion.</span>
+  </div>
+</footer>
+
+<script src="assets/js/problems-data.js"></script>
+<script>
+(function(){
+  "use strict";
+
+  var gridEl = document.getElementById("problemGrid");
+  var emptyEl = document.getElementById("emptyState");
+  var emptyQueryEl = document.getElementById("emptyQuery");
+  var errorEl = document.getElementById("errorState");
+  var resultBarEl = document.getElementById("resultBar");
+  var searchInput = document.getElementById("searchInput");
+  var patternFiltersEl = document.getElementById("patternFilters");
+  var difficultyFiltersEl = document.getElementById("difficultyFilters");
+
+  if (typeof PROBLEMS === "undefined") {
+    errorEl.hidden = false;
+    return;
+  }
+
+  var state = { query: "", pattern: null, difficulty: null };
+
+  function buildChips(container, values, stateKey) {
+    values.forEach(function (value) {
+      var chip = document.createElement("button");
+      chip.type = "button";
+      chip.className = "chip";
+      chip.textContent = value;
+      chip.setAttribute("aria-pressed", "false");
+      chip.addEventListener("click", function () {
+        var next = state[stateKey] === value ? null : value;
+        state[stateKey] = next;
+        container.querySelectorAll(".chip").forEach(function (c) {
+          c.setAttribute("aria-pressed", String(c.textContent === next));
+        });
+        render();
+      });
+      container.appendChild(chip);
+    });
+  }
+
+  var patternValues = PROBLEMS.map(function (p) { return p.pattern; })
+    .filter(function (value, idx, arr) { return arr.indexOf(value) === idx; })
+    .sort();
+  buildChips(patternFiltersEl, patternValues, "pattern");
+  buildChips(difficultyFiltersEl, ["Easy", "Medium", "Hard"], "difficulty");
+
+  function matches(problem) {
+    var q = state.query.trim().toLowerCase();
+    var matchesQuery = !q || (problem.title + " " + problem.summary).toLowerCase().indexOf(q) !== -1;
+    var matchesPattern = !state.pattern || problem.pattern === state.pattern;
+    var matchesDifficulty = !state.difficulty || problem.difficulty === state.difficulty;
+    return matchesQuery && matchesPattern && matchesDifficulty;
+  }
+
+  function cardFor(problem) {
+    var a = document.createElement("a");
+    a.className = "problem-card";
+    a.href = problem.path;
+    var diffClass = "difficulty-" + problem.difficulty.toLowerCase();
+    a.innerHTML =
+      '<div class="tag-row">' +
+        '<span class="tag">' + problem.pattern + '</span>' +
+        '<span class="tag ' + diffClass + '">' + problem.difficulty + '</span>' +
+      '</div>' +
+      '<h3>' + problem.title + '</h3>' +
+      '<p>' + problem.summary + '</p>';
+    return a;
+  }
+
+  function render() {
+    var filtered = PROBLEMS.filter(matches);
+    gridEl.innerHTML = "";
+    filtered.forEach(function (p) { gridEl.appendChild(cardFor(p)); });
+
+    var isEmpty = filtered.length === 0;
+    emptyEl.hidden = !isEmpty;
+    gridEl.hidden = isEmpty;
+    if (isEmpty) emptyQueryEl.textContent = state.query ? '"' + state.query + '"' : "these filters";
+
+    resultBarEl.textContent = filtered.length + " of " + PROBLEMS.length +
+      (PROBLEMS.length === 1 ? " problem" : " problems") + " shown";
+  }
+
+  searchInput.addEventListener("input", function () {
+    state.query = searchInput.value;
+    render();
+  });
+
+  document.getElementById("clearFilters").addEventListener("click", function () {
+    state = { query: "", pattern: null, difficulty: null };
+    searchInput.value = "";
+    document.querySelectorAll(".chip").forEach(function (c) { c.setAttribute("aria-pressed", "false"); });
+    render();
+  });
+
+  render();
+})();
+</script>
+</body>
+</html>

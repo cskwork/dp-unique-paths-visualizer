@@ -1,0 +1,612 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Unique Paths: Grid Dynamic Programming, Visualized</title>
+<meta name="description" content="An interactive walkthrough of the Unique Paths grid dynamic programming pattern: step through the 2D recurrence, then watch it compress into a 1D array.">
+<link rel="icon" href="../assets/img/favicon.svg">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../assets/css/base.css">
+<style>
+  /* Bespoke to this problem: a 2D grid + a compressed 1D array, the grid-DP visual metaphor. */
+  :root{ --cell:clamp(34px,8.4vw,60px); }
+
+  .badge.s{background:var(--accent);color:var(--accent-ink)}
+  .badge.e{background:var(--left);color:#06201e}
+
+  /* ---------- static mini grid (hero + result) ---------- */
+  .mini-grid{display:grid;gap:6px;justify-content:center}
+  .mini-cell{
+    width:clamp(30px,7.2vw,46px);height:clamp(30px,7.2vw,46px);display:flex;align-items:center;justify-content:center;
+    background:var(--surface-2);border:1px solid var(--border);border-radius:8px;
+    font-family:var(--mono);font-size:clamp(11px,2.2vw,14px);color:var(--text-muted);
+  }
+  .mini-cell.win{background:var(--accent-soft);border-color:var(--accent);color:var(--accent);font-weight:700}
+  .mini-cell.edge{color:var(--text)}
+
+  /* ---------- problem section layout ---------- */
+  .problem-layout{display:grid;grid-template-columns:1fr 1fr;gap:40px;margin-top:32px;align-items:start}
+  @media (max-width:760px){.problem-layout{grid-template-columns:1fr}}
+
+  /* ---------- idea diagram ---------- */
+  .idea-diagram{
+    display:grid;grid-template-columns:repeat(3,auto);grid-template-rows:repeat(3,auto);
+    justify-content:center;align-items:center;gap:6px 14px;margin:40px 0 28px;
+  }
+  .idea-cell{
+    width:clamp(116px,22vw,152px);height:clamp(54px,10vw,68px);border-radius:10px;
+    display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;
+    font-family:var(--mono);font-size:clamp(10px,2vw,12px);border:1px solid var(--border);background:var(--surface);
+    color:var(--text-muted);padding:4px 8px;
+  }
+  .idea-cell b{font-size:11px;color:var(--text);font-weight:600;display:block;white-space:nowrap}
+  .idea-cell.top{grid-column:2;grid-row:1;border-color:var(--accent);color:var(--accent)}
+  .idea-cell.top b{color:var(--accent)}
+  .idea-cell.left{grid-column:1;grid-row:2;border-color:var(--left);color:var(--left)}
+  .idea-cell.left b{color:var(--left)}
+  .idea-cell.target{grid-column:2;grid-row:2;background:var(--accent-soft);border-color:var(--accent);color:var(--text)}
+  .idea-cell.target b{color:var(--text);font-size:14px}
+
+  .derivation{
+    font-family:var(--mono);text-align:center;font-size:clamp(13px,2.6vw,17px);color:var(--text);
+    background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:18px;
+  }
+  .derivation .from-top{color:var(--accent)}
+  .derivation .from-left{color:var(--left)}
+
+  /* ---------- the dp grid + 1D array visualizer ---------- */
+  .dp-grid{display:grid;gap:6px}
+  .dp-cell{
+    width:var(--cell);height:var(--cell);
+    display:flex;align-items:center;justify-content:center;border-radius:8px;position:relative;
+    background:var(--surface-2);border:1px solid var(--border);font-family:var(--mono);
+    font-size:clamp(12px,2.6vw,16px);color:var(--text-faint);
+    transition:background .35s var(--ease),border-color .35s var(--ease),color .35s var(--ease),transform .35s var(--ease);
+  }
+  .dp-cell.settled{color:var(--text);background:var(--surface)}
+  .dp-cell.boundary.settled{color:var(--text-muted)}
+  .dp-cell.active{border-color:var(--text);transform:scale(1.08);color:var(--text);font-weight:700;z-index:2}
+  .dp-cell.src-top{border-color:var(--accent);box-shadow:0 0 0 2px var(--accent-soft)}
+  .dp-cell.src-left{border-color:var(--left);box-shadow:0 0 0 2px var(--left-soft)}
+  .dp-cell .chev{position:absolute;width:9px;height:9px;opacity:0;transition:opacity .25s var(--ease)}
+  .dp-cell .chev.show{opacity:1}
+  .chev-top{top:-5px;left:50%;transform:translateX(-50%) rotate(45deg);border-top:2px solid var(--accent);border-right:2px solid var(--accent)}
+  .chev-left{left:-5px;top:50%;transform:translateY(-50%) rotate(45deg);border-bottom:2px solid var(--left);border-left:2px solid var(--left)}
+
+  .row-tag{font-family:var(--mono);font-size:11px;color:var(--text-faint);text-align:center;margin-bottom:8px}
+
+  .grid-stack{display:flex;flex-direction:column;align-items:center;gap:4px}
+  .stack-label{font-family:var(--mono);font-size:10px;color:var(--text-faint);letter-spacing:.06em;text-transform:uppercase;height:14px;opacity:0}
+  .stack-label.show{opacity:1}
+  .ghost-grid{display:none}
+  .ghost-grid.show{display:grid}
+  .ghost-grid .dp-cell{opacity:.45;border-style:dashed}
+
+  /* ---------- result table ---------- */
+  .result-table{border-collapse:separate;border-spacing:6px;margin:32px auto 0}
+  .result-table td{
+    width:clamp(32px,7.6vw,52px);height:clamp(32px,7.6vw,52px);text-align:center;border-radius:8px;
+    background:var(--surface);border:1px solid var(--border);font-family:var(--mono);font-size:14px;color:var(--text-muted);
+  }
+  .result-table td.edge{color:var(--text)}
+  .result-table td.answer{background:var(--accent-soft);border-color:var(--accent);color:var(--accent);font-weight:700;font-size:16px}
+  .result-cap{text-align:center;margin-top:16px;font-size:14px}
+</style>
+</head>
+<body>
+<a class="skip-link" href="#main">Skip to content</a>
+
+<nav class="nav">
+  <div class="wrap">
+    <a class="wordmark" href="../index.html"><span class="dot">▣</span> algo-patterns</a>
+    <ul class="nav-links">
+      <li><a href="../index.html" aria-current="page">Problems</a></li>
+      <li><a href="../patterns.html">Patterns</a></li>
+    </ul>
+  </div>
+</nav>
+
+<main id="main">
+
+  <section class="hero" id="top">
+    <div class="wrap hero-grid">
+      <div>
+        <p class="eyebrow">Dynamic Programming · Grid Pattern</p>
+        <h1>Unique Paths</h1>
+        <p class="lede">A robot stands in the top-left corner of a grid. It can only move right or down. How many distinct paths reach the bottom-right corner?</p>
+        <div class="formula-pill"><span class="mono">dp[row][col] = <b>dp[row-1][col]</b> + <b>dp[row][col-1]</b></span></div>
+        <p class="formula-note muted">Every cell is the sum of the cell above it and the cell to its left.</p>
+        <a class="scroll-cue" href="#visualizer">
+          See it build
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M6 9l6 6 6-6"/></svg>
+        </a>
+      </div>
+      <div class="hero-visual">
+        <div class="mini-grid" id="heroGrid" style="grid-template-columns:repeat(7,1fr)"></div>
+        <p class="hero-visual-cap">m = 3, n = 7 → <b>28</b> distinct paths to E.</p>
+      </div>
+    </div>
+  </section>
+
+  <section id="problem">
+    <div class="wrap">
+      <p class="eyebrow">The Problem</p>
+      <h2>One robot, two moves</h2>
+      <p class="lede">The grid is m rows by n columns. The robot starts at S and must reach E using only two moves: right, or down. Every cell along the way is reachable by some number of distinct routes, and that count is what we're solving for.</p>
+
+      <div class="problem-layout">
+        <div>
+          <div class="mini-grid" id="problemGrid" style="grid-template-columns:repeat(7,1fr)"></div>
+          <div class="legend">
+            <span class="legend-pill"><span class="badge s">S</span> start</span>
+            <span class="legend-pill"><span class="badge e">E</span> end</span>
+            <span class="legend-pill">→ move right</span>
+            <span class="legend-pill">↓ move down</span>
+          </div>
+        </div>
+        <div class="callout-row">
+          <div class="callout">
+            <h3>First row</h3>
+            <p>Only reachable by moving right, again and again. Every cell here is reachable exactly one way.</p>
+          </div>
+          <div class="callout">
+            <h3>First column</h3>
+            <p>Only reachable by moving down, again and again. Every cell here is reachable exactly one way too.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="idea">
+    <div class="wrap">
+      <p class="eyebrow">The Key Idea</p>
+      <h2>Every interior cell has exactly two doors in</h2>
+      <p class="lede">To stand on any interior cell, the robot's last step was either a move down from the cell above, or a move right from the cell to the left. There is no third way in, so the number of paths to a cell is just the paths from above, plus the paths from the left.</p>
+
+      <div class="idea-diagram">
+        <div class="idea-cell top">from above<b>dp[row-1][col]</b></div>
+        <div class="idea-cell left">from left<b>dp[row][col-1]</b></div>
+        <div class="idea-cell target">this cell<b>dp[row][col]</b></div>
+      </div>
+
+      <div class="derivation">dp[row][col] = <span class="from-top">dp[row-1][col]</span> + <span class="from-left">dp[row][col-1]</span></div>
+    </div>
+  </section>
+
+  <section id="visualizer">
+    <div class="wrap">
+      <p class="eyebrow">Try It</p>
+      <h2>Watch the grid fill, one cell at a time</h2>
+      <p class="lede">Press play, or step through it by hand. Switch to the 1D view to see the exact same logic compressed into a single row of memory.</p>
+
+      <div class="viz-panel">
+        <div class="viz-toolbar">
+          <div class="seg" role="group" aria-label="Visualization mode">
+            <button id="mode2d" aria-pressed="true">2D Grid</button>
+            <button id="mode1d" aria-pressed="false">1D Array</button>
+          </div>
+          <div class="transport">
+            <button class="ctrl-btn" id="btnReset" aria-label="Reset">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M3 12a9 9 0 1 1 3 6.7"/><path d="M3 4v5h5"/></svg>
+            </button>
+            <button class="ctrl-btn" id="btnBack" aria-label="Step back">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M15 6l-6 6 6 6"/></svg>
+            </button>
+            <button class="ctrl-btn primary" id="btnPlay" aria-label="Play">
+              <svg id="iconPlay" viewBox="0 0 24 24" fill="currentColor"><path d="M7 5l13 7-13 7z"/></svg>
+              <svg id="iconPause" viewBox="0 0 24 24" fill="currentColor" style="display:none"><path d="M7 5h3v14H7zM14 5h3v14h-3z"/></svg>
+            </button>
+            <button class="ctrl-btn" id="btnFwd" aria-label="Step forward">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"/></svg>
+            </button>
+            <button class="ctrl-btn speed-btn" id="btnSpeed">1×</button>
+          </div>
+          <p class="step-readout">Step <b id="stepNow">0</b> / <span id="stepMax">21</span></p>
+        </div>
+
+        <p class="row-tag" id="rowTag">Row 0 · first row, boundary cells</p>
+        <div class="grid-stage">
+          <div class="grid-stack">
+            <p class="stack-label" id="ghostLabel">before this pass</p>
+            <div class="dp-grid ghost-grid" id="ghostGrid"></div>
+            <p class="stack-label" id="liveLabel">this pass</p>
+            <div class="dp-grid" id="dpGrid"></div>
+          </div>
+        </div>
+
+        <div class="formula-readout" id="formulaReadout" aria-live="polite">Press play or step forward to begin.</div>
+      </div>
+      <p class="viz-caption">The amber ring marks the value used <span style="color:var(--accent)">from above</span>; the teal ring marks the value used <span style="color:var(--left)">from the left</span>.</p>
+    </div>
+  </section>
+
+  <section id="result">
+    <div class="wrap">
+      <p class="eyebrow">The Result</p>
+      <h2>The filled grid</h2>
+      <p class="lede">For m = 3, n = 7, the recurrence above produces this grid. The bottom-right corner is the answer.</p>
+      <table class="result-table" id="resultTable" aria-label="Filled DP grid for m=3, n=7"></table>
+      <p class="result-cap muted"><b style="color:var(--accent)">28</b> distinct paths from S to E.</p>
+    </div>
+  </section>
+
+  <section id="code">
+    <div class="wrap">
+      <p class="eyebrow">The Code</p>
+      <h2>Same idea, two implementations</h2>
+      <p class="lede">The 1D version drops the full grid and keeps only one row alive, overwriting it in place as it scans left to right.</p>
+
+      <div class="editor">
+        <div class="editor-bar">
+          <div class="traffic"><span></span><span></span><span></span></div>
+          <div class="editor-tabs" role="tablist" aria-label="Code samples">
+            <button role="tab" id="tab2d" aria-selected="true">UniquePaths2D.java</button>
+            <button role="tab" id="tab1d" aria-selected="false">UniquePaths1D.java</button>
+          </div>
+        </div>
+        <div class="editor-body"><pre id="codeBody"></pre></div>
+        <p class="editor-note" id="codeNote">First row and first column are boundary cases: exactly one way in, by definition, not by the recurrence.</p>
+      </div>
+    </div>
+  </section>
+
+  <section id="complexity">
+    <div class="wrap">
+      <p class="eyebrow">Complexity</p>
+      <h2>What the optimization actually buys you</h2>
+      <div class="complexity-row">
+        <div class="complexity-card">
+          <h3>2D DP</h3>
+          <div class="complexity-stat"><span class="muted">Time</span><b>O(m · n)</b></div>
+          <div class="complexity-stat"><span class="muted">Space</span><b>O(m · n)</b></div>
+        </div>
+        <div class="complexity-card">
+          <h3>1D DP</h3>
+          <div class="complexity-stat"><span class="muted">Time</span><b>O(m · n)</b></div>
+          <div class="complexity-stat"><span class="muted">Space</span><b>O(n)</b></div>
+        </div>
+      </div>
+      <p class="lede" style="margin-top:18px">Same time complexity, far less memory: only one row needs to stay alive at any point.</p>
+    </div>
+  </section>
+
+  <section id="pattern">
+    <div class="wrap">
+      <p class="eyebrow">Pattern To Remember</p>
+      <div class="pattern-card">
+        <p class="lead">Whenever a cell depends only on its top and left neighbors, you're looking at grid DP.</p>
+        <p class="pattern-strip">dp[row][col] = something(top) + something(left)</p>
+        <p class="lede">Same shape shows up in Minimum Path Sum, Unique Paths II, Triangle, and a good chunk of edit-distance-style problems.</p>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<footer>
+  <div class="wrap footer-row">
+    <span>Part of <a href="../index.html">Algorithm Patterns, Visualized</a>. See this pattern in the <a href="../patterns.html#dynamic-programming">Dynamic Programming field guide</a>.</span>
+    <span>Runs entirely in your browser. Respects reduced motion.</span>
+  </div>
+</footer>
+
+<script src="../assets/js/step-player.js"></script>
+<script src="../assets/js/code-panel.js"></script>
+<script>
+(function(){
+  "use strict";
+  var M = 3, N = 7;
+
+  function computeGrid(m, n){
+    var g = [];
+    for (var r = 0; r < m; r++){
+      g.push(new Array(n).fill(0));
+      for (var c = 0; c < n; c++){
+        g[r][c] = (r === 0 || c === 0) ? 1 : g[r-1][c] + g[r][c-1];
+      }
+    }
+    return g;
+  }
+
+  function buildSteps(m, n){
+    var grid = computeGrid(m, n);
+    var steps = [];
+    for (var r = 0; r < m; r++){
+      for (var c = 0; c < n; c++){
+        steps.push({
+          row: r, col: c, value: grid[r][c],
+          boundary: (r === 0 || c === 0),
+          top: r > 0 ? grid[r-1][c] : null,
+          left: c > 0 ? grid[r][c-1] : null
+        });
+      }
+    }
+    return { grid: grid, steps: steps };
+  }
+
+  var DATA = buildSteps(M, N);
+  var TOTAL = DATA.steps.length;
+
+  function renderStaticMiniGrid(el, mode){
+    el.innerHTML = "";
+    for (var r = 0; r < M; r++){
+      for (var c = 0; c < N; c++){
+        var div = document.createElement("div");
+        var cls = "mini-cell";
+        var label = "";
+        if (mode === "problem"){
+          if (r === 0 && c === 0){ cls += " edge"; label = "S"; }
+          else if (r === M-1 && c === N-1){ cls += " win"; label = "E"; }
+          else if (r === 0 || c === 0){ cls += " edge"; label = "·"; }
+          else { label = "·"; }
+        } else {
+          var v = DATA.grid[r][c];
+          label = String(v);
+          if (r === M-1 && c === N-1) cls += " win";
+          else if (r === 0 || c === 0) cls += " edge";
+        }
+        div.className = cls;
+        div.textContent = label;
+        el.appendChild(div);
+      }
+    }
+  }
+  renderStaticMiniGrid(document.getElementById("heroGrid"), "solved");
+  renderStaticMiniGrid(document.getElementById("problemGrid"), "problem");
+
+  function renderResultTable(){
+    var table = document.getElementById("resultTable");
+    var tbody = document.createElement("tbody");
+    for (var r = 0; r < M; r++){
+      var tr = document.createElement("tr");
+      for (var c = 0; c < N; c++){
+        var td = document.createElement("td");
+        td.textContent = DATA.grid[r][c];
+        if (r === M-1 && c === N-1) td.className = "answer";
+        else if (r === 0 || c === 0) td.className = "edge";
+        tbody.appendChild(td) && tr.appendChild(td);
+      }
+      tbody.appendChild(tr);
+    }
+    table.appendChild(tbody);
+  }
+  renderResultTable();
+
+  /* ---------------- visualizer engine ---------------- */
+  var mode = "2d";
+
+  var gridEl = document.getElementById("dpGrid");
+  var rowTagEl = document.getElementById("rowTag");
+  var formulaEl = document.getElementById("formulaReadout");
+  var ghostGridEl = document.getElementById("ghostGrid");
+  var ghostLabelEl = document.getElementById("ghostLabel");
+  var liveLabelEl = document.getElementById("liveLabel");
+
+  function rowQualifier(n){
+    if (n === 0) return "first row, boundary cells";
+    if (n === M - 1) return "last row";
+    return "middle row";
+  }
+
+  function describeStep(s){
+    if (s.boundary){
+      if (s.row === 0 && s.col === 0) return "Start (S): the robot begins here, exactly 1 way to be here.";
+      if (s.row === 0) return "First row: only reachable by moving right, so it copies the boundary value of 1.";
+      return "First column: only reachable by moving down, so it copies the boundary value of 1.";
+    }
+    return "dp[" + s.row + "][" + s.col + "] = " + s.top + " (from above) + " + s.left + " (from left) = " + s.value;
+  }
+
+  function render2D(current){
+    gridEl.style.gridTemplateColumns = "repeat(" + N + ", var(--cell))";
+    gridEl.innerHTML = "";
+    ghostGridEl.classList.remove("show");
+    ghostGridEl.innerHTML = "";
+    ghostLabelEl.classList.remove("show");
+    liveLabelEl.classList.remove("show");
+    var activeRow = current >= 0 ? DATA.steps[current].row : 0;
+    rowTagEl.textContent = current < 0 ? "Press play to start filling the grid" : "Processing row " + (activeRow + 1) + " of " + M + " (" + rowQualifier(activeRow) + ")";
+
+    for (var i = 0; i < TOTAL; i++){
+      var s = DATA.steps[i];
+      var cell = document.createElement("div");
+      cell.className = "dp-cell" + (s.boundary ? " boundary" : "");
+      if (i <= current){
+        cell.classList.add("settled");
+        cell.textContent = s.value;
+      }
+      if (i === current){
+        cell.classList.add("active");
+        if (!s.boundary){
+          var topIdx = current - N, leftIdx = current - 1;
+          markSource(topIdx); markSource(leftIdx);
+        }
+      }
+      var chevTop = document.createElement("span");
+      chevTop.className = "chev chev-top" + (i === current && !s.boundary ? " show" : "");
+      var chevLeft = document.createElement("span");
+      chevLeft.className = "chev chev-left" + (i === current && !s.boundary ? " show" : "");
+      cell.appendChild(chevTop); cell.appendChild(chevLeft);
+      gridEl.appendChild(cell);
+    }
+
+    function markSource(idx){
+      if (idx < 0 || idx > current) return;
+      var node = gridEl.children[idx];
+      if (!node) return;
+      node.classList.add(idx === current - N ? "src-top" : "src-left");
+    }
+  }
+
+  function computeOneDStateAt(stepIndex){
+    var live = new Array(N).fill(null);
+    var ghost = new Array(N).fill(null);
+    var rowOfStep = 0, colOfStep = -1, changed = true;
+    for (var i = 0; i <= stepIndex && i < TOTAL; i++){
+      var s = DATA.steps[i];
+      rowOfStep = s.row; colOfStep = s.col;
+      if (s.col === 0 && s.row > 0) ghost = live.slice();
+      if (s.row === 0){ live[s.col] = 1; changed = true; }
+      else if (s.col === 0){ changed = false; }
+      else { live[s.col] = live[s.col] + live[s.col-1]; changed = true; }
+    }
+    return { live: live, ghost: ghost, row: rowOfStep, col: colOfStep, changed: changed };
+  }
+
+  function renderGhostRow(ghost){
+    ghostGridEl.style.gridTemplateColumns = "repeat(" + N + ", var(--cell))";
+    ghostGridEl.innerHTML = "";
+    for (var c = 0; c < N; c++){
+      var g = document.createElement("div");
+      g.className = "dp-cell settled";
+      g.textContent = ghost[c] === null ? "" : ghost[c];
+      ghostGridEl.appendChild(g);
+    }
+  }
+
+  function render1D(current){
+    gridEl.style.gridTemplateColumns = "repeat(" + N + ", var(--cell))";
+    gridEl.innerHTML = "";
+    if (current < 0){
+      rowTagEl.textContent = "Press play to start filling the array";
+      ghostGridEl.classList.remove("show");
+      ghostLabelEl.classList.remove("show");
+      liveLabelEl.classList.remove("show");
+      return;
+    }
+    var st = computeOneDStateAt(current);
+    rowTagEl.textContent = "Array pass for row " + (st.row + 1) + " of " + M + " (" + rowQualifier(st.row) + "), ghost row shows the value before this pass";
+
+    liveLabelEl.classList.add("show");
+    if (st.row > 0){
+      ghostGridEl.classList.add("show");
+      ghostLabelEl.classList.add("show");
+      renderGhostRow(st.ghost);
+    } else {
+      ghostGridEl.classList.remove("show");
+      ghostLabelEl.classList.remove("show");
+    }
+
+    for (var c = 0; c < N; c++){
+      var cell = document.createElement("div");
+      var v = st.live[c];
+      cell.className = "dp-cell" + ((st.row === 0 || c === 0) ? " boundary" : "");
+      if (v !== null){ cell.classList.add("settled"); cell.textContent = v; }
+      var isActiveCol = (c === st.col && st.row > 0);
+      if (isActiveCol && st.changed){
+        cell.classList.add("active");
+        cell.classList.add("src-top");
+      }
+      if (st.row > 0 && c === st.col - 1 && st.changed && st.col > 0){
+        cell.classList.add("src-left");
+      }
+      var chevTop = document.createElement("span");
+      chevTop.className = "chev chev-top" + (isActiveCol && st.changed ? " show" : "");
+      var chevLeft = document.createElement("span");
+      chevLeft.className = "chev chev-left" + (isActiveCol && st.changed && c > 0 ? " show" : "");
+      cell.appendChild(chevTop); cell.appendChild(chevLeft);
+      gridEl.appendChild(cell);
+    }
+  }
+
+  function renderFormula(current){
+    if (current < 0){ formulaEl.textContent = "Press play or step forward to begin."; return; }
+    var s = DATA.steps[current];
+    if (mode === "2d"){
+      formulaEl.innerHTML = describeStep(s).replace("from above", '<span class="ft">from above</span>').replace("from left", '<span class="fl">from left</span>');
+    } else {
+      if (s.row === 0){
+        formulaEl.textContent = "dp[" + s.col + "] = 1 (boundary, first row initializes every slot to 1)";
+      } else if (s.col === 0){
+        formulaEl.textContent = "dp[0] stays 1. The loop starts at column 1, first column never gets recomputed.";
+      } else {
+        formulaEl.innerHTML = "dp[" + s.col + "] = <span class='ft'>dp[" + s.col + "]</span> (still yesterday's value, from above) + <span class='fl'>dp[" + (s.col-1) + "]</span> (already updated this pass, from left) = " + s.value;
+      }
+    }
+  }
+
+  function renderAtStep(current){
+    if (mode === "2d") render2D(current); else render1D(current);
+    renderFormula(current);
+  }
+
+  var player = StepPlayer.create({ totalSteps: TOTAL, onChange: renderAtStep });
+
+  function setMode(next){
+    mode = next;
+    document.getElementById("mode2d").setAttribute("aria-pressed", String(next === "2d"));
+    document.getElementById("mode1d").setAttribute("aria-pressed", String(next === "1d"));
+    renderAtStep(player.current());
+  }
+  document.getElementById("mode2d").addEventListener("click", function(){ setMode("2d"); });
+  document.getElementById("mode1d").addEventListener("click", function(){ setMode("1d"); });
+
+  /* ---------------- code panel ---------------- */
+  CodePanel.create({
+    types: ["Solution"],
+    tabs: [
+      {
+        id: "tab2d",
+        note: "First row and first column are boundary cases: exactly one way in, by definition, not by the recurrence.",
+        lines: [
+          ["class Solution {", null],
+          ["    public int uniquePaths(int m, int n) {", null],
+          ["        int[][] dp = new int[m][n];", null],
+          ["", null],
+          ["        // First row: only one way, keep moving right", "cm"],
+          ["        for (int col = 0; col < n; col++) {", null],
+          ["            dp[0][col] = 1;", null],
+          ["        }", null],
+          ["", null],
+          ["        // First column: only one way, keep moving down", "cm"],
+          ["        for (int row = 0; row < m; row++) {", null],
+          ["            dp[row][0] = 1;", null],
+          ["        }", null],
+          ["", null],
+          ["        // Fill the rest of the grid", "cm"],
+          ["        for (int row = 1; row < m; row++) {", null],
+          ["            for (int col = 1; col < n; col++) {", null],
+          ["                dp[row][col] = dp[row - 1][col] + dp[row][col - 1];", null],
+          ["            }", null],
+          ["        }", null],
+          ["", null],
+          ["        return dp[m - 1][n - 1];", null],
+          ["    }", null],
+          ["}", null]
+        ]
+      },
+      {
+        id: "tab1d",
+        note: "dp[col] holds yesterday's value (from above) right up until it gets overwritten with today's (left + above). That's the whole trick.",
+        lines: [
+          ["class Solution {", null],
+          ["    public int uniquePaths(int m, int n) {", null],
+          ["        int[] dp = new int[n];", null],
+          ["", null],
+          ["        // First row: all 1", "cm"],
+          ["        for (int col = 0; col < n; col++) {", null],
+          ["            dp[col] = 1;", null],
+          ["        }", null],
+          ["", null],
+          ["        // Start from the second row, reuse the same array", "cm"],
+          ["        for (int row = 1; row < m; row++) {", null],
+          ["            for (int col = 1; col < n; col++) {", null],
+          ["                dp[col] = dp[col] + dp[col - 1];", null],
+          ["            }", null],
+          ["        }", null],
+          ["", null],
+          ["        return dp[n - 1];", null],
+          ["    }", null],
+          ["}", null]
+        ]
+      }
+    ]
+  });
+})();
+</script>
+</body>
+</html>
