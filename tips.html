@@ -1,0 +1,235 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Solving Mindset: Algorithm Patterns, Visualized</title>
+<meta name="description" content="Ten mindset tips, a practical ten-step solving loop, and the one question to ask first when you approach an algorithm problem.">
+<link rel="icon" href="assets/img/favicon.svg">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/css/base.css">
+<style>
+  /* Bespoke to the tips page: the numbered mindset cards, the solving-loop grid, and the
+     closing mindset-contrast callout. Text sizes ride the site-wide --fs scaler (see
+     assets/css/base.css); the +/- control lives in the header on every page. */
+
+  .tips-hero{padding-top:clamp(48px,7vw,72px)}
+
+  .tip-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:16px;margin-top:26px}
+  .tip{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:22px;transition:border-color .2s var(--ease)}
+  .tip:hover{border-color:var(--text-faint)}
+  .tip-head{display:flex;align-items:baseline;gap:10px;margin-bottom:10px}
+  .tip-num{font-family:var(--mono);font-size:calc(14px * var(--fs));font-weight:700;color:var(--accent);letter-spacing:.02em;flex-shrink:0}
+  .tip-head h3{font-size:calc(17.5px * var(--fs));line-height:1.3}
+  .tip > p{font-size:calc(15.5px * var(--fs));color:var(--text-muted);line-height:1.55}
+  .tip code{font-family:var(--mono);font-size:calc(14px * var(--fs));color:var(--text)}
+
+  .sublist{margin:12px 0 0;padding:0;list-style:none}
+  .sublist li{font-size:calc(15px * var(--fs));color:var(--text-muted);padding:6px 0 6px 16px;border-top:1px solid var(--border-soft);position:relative;line-height:1.45}
+  .sublist li:first-child{border-top:none}
+  .sublist li::before{content:"";position:absolute;left:2px;top:calc(15px * var(--fs));width:5px;height:5px;border-radius:50%;background:var(--accent)}
+  .sublist code{font-size:calc(14px * var(--fs));color:var(--text)}
+
+  .maplist{margin:12px 0 0;padding:0;list-style:none}
+  .maplist li{display:flex;gap:10px;align-items:baseline;padding:7px 0;border-top:1px solid var(--border-soft)}
+  .maplist li:first-child{border-top:none}
+  .maplist .from{font-size:calc(14.5px * var(--fs));color:var(--text-muted);flex:1}
+  .maplist .arr{color:var(--accent);font-family:var(--mono);font-size:calc(15px * var(--fs))}
+  .maplist .to{font-family:var(--mono);font-size:calc(14.5px * var(--fs));color:var(--text);flex:1;text-align:right}
+
+  .loop{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:12px;margin-top:26px}
+  .loop-step{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:16px}
+  .loop-num{font-family:var(--mono);font-size:calc(14px * var(--fs));font-weight:700;color:var(--accent)}
+  .loop-step p{font-size:calc(16px * var(--fs));color:var(--text);margin-top:7px;line-height:1.35}
+
+  .mindset-contrast{margin-top:22px;display:grid;gap:16px}
+  .mindset-q{margin:0;font-family:var(--sans);font-size:calc(clamp(17px,2.2vw,20px) * var(--fs));line-height:1.45}
+  .mindset-q .qtag{display:block;font-family:var(--mono);font-size:calc(13.5px * var(--fs));letter-spacing:.05em;text-transform:uppercase;color:var(--text-faint);margin-bottom:6px;font-weight:600}
+  .mindset-q.nope{color:var(--text-faint)}
+  .mindset-q.nope .quote{text-decoration:line-through;text-decoration-color:var(--text-faint)}
+  .mindset-q.yep{color:var(--text)}
+  .mindset-q.yep .qtag{color:var(--accent)}
+</style>
+</head>
+<body>
+<a class="skip-link" href="#main">Skip to content</a>
+
+<nav class="nav">
+  <div class="wrap">
+    <a class="wordmark" href="index.html"><span class="dot">&#9635;</span> algo-patterns</a>
+    <div class="nav-actions">
+      <ul class="nav-links">
+        <li><a href="index.html">Problems</a></li>
+        <li><a href="patterns.html">Patterns</a></li>
+        <li><a href="tips.html" aria-current="page">Tips</a></li>
+      </ul>
+      <div class="fs-control" role="group" aria-label="Text size">
+        <button type="button" class="fs-btn" id="fsDown" aria-label="Decrease text size">A&minus;</button>
+        <button type="button" class="fs-btn fs-readout" id="fsReset" aria-label="Reset text size" title="Reset text size">100%</button>
+        <button type="button" class="fs-btn" id="fsUp" aria-label="Increase text size">A+</button>
+      </div>
+    </div>
+  </div>
+</nav>
+
+<main id="main">
+  <section class="tips-hero">
+    <div class="wrap">
+      <p class="eyebrow">Solving Mindset</p>
+      <h1>How to think before you code</h1>
+      <p class="lede">Before you reach for a specific algorithm, a few habits shape how you approach any problem: read the constraints, find the structure, and prove the move before you make it. Pair these with <a href="index.html">the problem library</a> and the <a href="patterns.html">pattern field guide</a>.</p>
+    </div>
+  </section>
+
+  <section>
+    <div class="wrap">
+      <h2>Ten mindset tips</h2>
+      <p class="lede">Durable habits that work across every problem on this site, from the first easy grid walk to the hardest DP recurrence.</p>
+      <div class="tip-grid">
+        <article class="tip">
+          <div class="tip-head"><span class="tip-num">01</span><h3>Read the constraints before the algorithm</h3></div>
+          <p>The same problem statement with <code>n &lt;= 20</code>, <code>n &lt;= 10^5</code>, or <code>n &lt;= 10^9</code> points at three different solution families. Read the bounds before you pick an approach.</p>
+        </article>
+
+        <article class="tip">
+          <div class="tip-head"><span class="tip-num">02</span><h3>Restate the problem in your own words</h3></div>
+          <p>Convert the story text into five things:</p>
+          <ul class="sublist">
+            <li>input</li>
+            <li>output</li>
+            <li>operation</li>
+            <li>objective</li>
+            <li>constraints</li>
+          </ul>
+        </article>
+
+        <article class="tip">
+          <div class="tip-head"><span class="tip-num">03</span><h3>Start with brute force first</h3></div>
+          <p>Always ask: "What is the simplest correct solution?" Get the right answer on paper, then optimize only the bottleneck.</p>
+        </article>
+
+        <article class="tip">
+          <div class="tip-head"><span class="tip-num">04</span><h3>Identify the real bottleneck</h3></div>
+          <p>Is the problem hard because of time, memory, repeated computation, ordering, search space, or state explosion? Naming the cost tells you what to fix.</p>
+        </article>
+
+        <article class="tip">
+          <div class="tip-head"><span class="tip-num">05</span><h3>Look for structure, not tricks</h3></div>
+          <p>Tricks expire; structure repeats. Common structures to name first:</p>
+          <ul class="sublist">
+            <li>sorted order</li>
+            <li>prefix / suffix</li>
+            <li>graph edges</li>
+            <li>overlapping subproblems</li>
+            <li>monotonicity</li>
+            <li>frequency counting</li>
+            <li>intervals</li>
+          </ul>
+        </article>
+
+        <article class="tip">
+          <div class="tip-head"><span class="tip-num">06</span><h3>Ask: what must I remember?</h3></div>
+          <p>This question often reveals the data structure for free:</p>
+          <ul class="sublist">
+            <li>hash map, heap, stack, queue, set</li>
+            <li>tree, union-find</li>
+            <li>DP table</li>
+          </ul>
+        </article>
+
+        <article class="tip">
+          <div class="tip-head"><span class="tip-num">07</span><h3>Reduce the problem to a known pattern</h3></div>
+          <p>Match the shape of the question to a pattern:</p>
+          <ul class="maplist">
+            <li><span class="from">"choose best among previous values"</span><span class="arr">&rarr;</span><span class="to">DP / greedy</span></li>
+            <li><span class="from">"shortest steps"</span><span class="arr">&rarr;</span><span class="to">BFS</span></li>
+            <li><span class="from">"dependencies"</span><span class="arr">&rarr;</span><span class="to">topological sort</span></li>
+            <li><span class="from">"continuous subarray"</span><span class="arr">&rarr;</span><span class="to">sliding window / prefix sum</span></li>
+            <li><span class="from">"can we achieve X?"</span><span class="arr">&rarr;</span><span class="to">binary search on answer</span></li>
+          </ul>
+        </article>
+
+        <article class="tip">
+          <div class="tip-head"><span class="tip-num">08</span><h3>Prove why it works before coding</h3></div>
+          <p>Especially for greedy. Ask: "Why is this local choice safe?" If you cannot explain it, it may be wrong.</p>
+        </article>
+
+        <article class="tip">
+          <div class="tip-head"><span class="tip-num">09</span><h3>Design edge cases before implementation</h3></div>
+          <p>Walk the idea through these inputs in your head:</p>
+          <ul class="sublist">
+            <li>empty input</li>
+            <li>one element</li>
+            <li>duplicates</li>
+            <li>all same values</li>
+            <li>negative numbers</li>
+            <li>maximum size</li>
+            <li>the impossible case</li>
+          </ul>
+        </article>
+
+        <article class="tip">
+          <div class="tip-head"><span class="tip-num">10</span><h3>Code for invariants, not just steps</h3></div>
+          <p>Know what each variable always means, at every line. For example:</p>
+          <ul class="sublist">
+            <li><code>left is the first valid index</code></li>
+            <li><code>dp[i] means best answer ending at i</code></li>
+            <li><code>heap holds current candidates only</code></li>
+          </ul>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="wrap">
+      <h2>A practical solving loop</h2>
+      <p class="lede">Run this order on every problem. Steps 1 and 2 come before any algorithm; steps 7 through 10 are what separate a guess from a solution.</p>
+      <div class="loop">
+        <div class="loop-step"><span class="loop-num">01</span><p>Understand input / output</p></div>
+        <div class="loop-step"><span class="loop-num">02</span><p>Check constraints</p></div>
+        <div class="loop-step"><span class="loop-num">03</span><p>Write brute force</p></div>
+        <div class="loop-step"><span class="loop-num">04</span><p>Find bottleneck</p></div>
+        <div class="loop-step"><span class="loop-num">05</span><p>Match pattern</p></div>
+        <div class="loop-step"><span class="loop-num">06</span><p>Define state / invariant</p></div>
+        <div class="loop-step"><span class="loop-num">07</span><p>Prove correctness</p></div>
+        <div class="loop-step"><span class="loop-num">08</span><p>Code cleanly</p></div>
+        <div class="loop-step"><span class="loop-num">09</span><p>Test edge cases</p></div>
+        <div class="loop-step"><span class="loop-num">10</span><p>Analyze complexity</p></div>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="wrap">
+      <div class="pattern-card">
+        <p class="lead">The one question that matters most.</p>
+        <div class="mindset-contrast">
+          <p class="mindset-q nope">
+            <span class="qtag">Don't start with</span>
+            <span class="quote">"Which algorithm should I use?"</span>
+          </p>
+          <p class="mindset-q yep">
+            <span class="qtag">Start with</span>
+            "What prevents the brute-force solution from being fast enough, and what repeated work or structure can I exploit?"
+          </p>
+        </div>
+        <p class="lede">Algorithms are answers. That question is how you earn the right to them, one problem at a time.</p>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer>
+  <div class="wrap footer-row">
+    <span>Algorithm Patterns, Visualized. Back to the <a href="index.html">problem library</a> or the <a href="patterns.html">pattern field guide</a>.</span>
+    <span>Runs entirely in your browser. Respects reduced motion.</span>
+  </div>
+</footer>
+
+<script src="assets/js/font-scale.js"></script>
+
+</body>
+</html>

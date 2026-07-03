@@ -102,10 +102,18 @@
 <nav class="nav">
   <div class="wrap">
     <a class="wordmark" href="../index.html"><span class="dot">▣</span> algo-patterns</a>
-    <ul class="nav-links">
-      <li><a href="../index.html" aria-current="page">Problems</a></li>
-      <li><a href="../patterns.html">Patterns</a></li>
-    </ul>
+    <div class="nav-actions">
+      <ul class="nav-links">
+        <li><a href="../index.html" aria-current="page">Problems</a></li>
+        <li><a href="../patterns.html">Patterns</a></li>
+        <li><a href="../tips.html">Tips</a></li>
+      </ul>
+      <div class="fs-control" role="group" aria-label="Text size">
+        <button type="button" class="fs-btn" id="fsDown" aria-label="Decrease text size">A&minus;</button>
+        <button type="button" class="fs-btn fs-readout" id="fsReset" aria-label="Reset text size" title="Reset text size">100%</button>
+        <button type="button" class="fs-btn" id="fsUp" aria-label="Increase text size">A+</button>
+      </div>
+    </div>
   </div>
 </nav>
 
@@ -608,5 +616,6 @@
   });
 })();
 </script>
+<script src="../assets/js/font-scale.js"></script>
 </body>
 </html>

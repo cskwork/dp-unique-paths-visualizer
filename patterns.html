@@ -44,10 +44,18 @@
 <nav class="nav">
   <div class="wrap">
     <a class="wordmark" href="index.html"><span class="dot">▣</span> algo-patterns</a>
-    <ul class="nav-links">
-      <li><a href="index.html">Problems</a></li>
-      <li><a href="patterns.html" aria-current="page">Patterns</a></li>
-    </ul>
+    <div class="nav-actions">
+      <ul class="nav-links">
+        <li><a href="index.html">Problems</a></li>
+        <li><a href="patterns.html" aria-current="page">Patterns</a></li>
+        <li><a href="tips.html">Tips</a></li>
+      </ul>
+      <div class="fs-control" role="group" aria-label="Text size">
+        <button type="button" class="fs-btn" id="fsDown" aria-label="Decrease text size">A&minus;</button>
+        <button type="button" class="fs-btn fs-readout" id="fsReset" aria-label="Reset text size" title="Reset text size">100%</button>
+        <button type="button" class="fs-btn" id="fsUp" aria-label="Increase text size">A+</button>
+      </div>
+    </div>
   </div>
 </nav>
 
@@ -66,7 +74,7 @@
 
 <footer>
   <div class="wrap footer-row">
-    <span>Algorithm Patterns, Visualized. Back to the <a href="index.html">problem library</a>.</span>
+    <span>Algorithm Patterns, Visualized. Back to the <a href="index.html">problem library</a> or the <a href="tips.html">solving tips</a>.</span>
     <span>Runs entirely in your browser. Respects reduced motion.</span>
   </div>
 </footer>
@@ -132,5 +140,6 @@
   sectionsEl.innerHTML = patterns.map(sectionHtml).join("");
 })();
 </script>
+<script src="assets/js/font-scale.js"></script>
 </body>
 </html>

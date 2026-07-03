@@ -45,10 +45,18 @@
 <nav class="nav">
   <div class="wrap">
     <a class="wordmark" href="index.html"><span class="dot">▣</span> algo-patterns</a>
-    <ul class="nav-links">
-      <li><a href="index.html" aria-current="page">Problems</a></li>
-      <li><a href="patterns.html">Patterns</a></li>
-    </ul>
+    <div class="nav-actions">
+      <ul class="nav-links">
+        <li><a href="index.html" aria-current="page">Problems</a></li>
+        <li><a href="patterns.html">Patterns</a></li>
+        <li><a href="tips.html">Tips</a></li>
+      </ul>
+      <div class="fs-control" role="group" aria-label="Text size">
+        <button type="button" class="fs-btn" id="fsDown" aria-label="Decrease text size">A&minus;</button>
+        <button type="button" class="fs-btn fs-readout" id="fsReset" aria-label="Reset text size" title="Reset text size">100%</button>
+        <button type="button" class="fs-btn" id="fsUp" aria-label="Increase text size">A+</button>
+      </div>
+    </div>
   </div>
 </nav>
 
@@ -57,7 +65,7 @@
     <div class="wrap">
       <p class="eyebrow">Interactive Problem Library</p>
       <h1>Algorithm Patterns, Visualized</h1>
-      <p class="lede">Step through real recurrences and data structures one move at a time, then read the pattern that ties them together. Start with a problem below, or browse the <a href="patterns.html">pattern field guide</a> first.</p>
+      <p class="lede">Step through real recurrences and data structures one move at a time, then read the pattern that ties them together. Start with a problem below, browse the <a href="patterns.html">pattern field guide</a>, or read the <a href="tips.html">solving tips</a> first.</p>
 
       <div class="search-row">
         <label for="searchInput">Search problems</label>
@@ -87,7 +95,7 @@
 
 <footer>
   <div class="wrap footer-row">
-    <span>Algorithm Patterns, Visualized. Browse the <a href="patterns.html">pattern field guide</a>.</span>
+    <span>Algorithm Patterns, Visualized. Browse the <a href="patterns.html">pattern field guide</a> or the <a href="tips.html">solving tips</a>.</span>
     <span>Runs entirely in your browser. Respects reduced motion.</span>
   </div>
 </footer>
@@ -190,5 +198,6 @@
   render();
 })();
 </script>
+<script src="assets/js/font-scale.js"></script>
 </body>
 </html>

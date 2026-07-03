@@ -65,7 +65,7 @@ p{margin:0}
 
 code,.mono{font-family:var(--mono)}
 
-/* ---------- nav (identical on every page: wordmark + Problems + Patterns) ---------- */
+/* ---------- nav (identical on every page: wordmark + Problems + Patterns + Tips) ---------- */
 .nav{
   position:sticky;top:0;z-index:40;height:64px;display:flex;align-items:center;
   background:rgba(11,13,16,.82);backdrop-filter:blur(10px);border-bottom:1px solid var(--border-soft);
@@ -243,3 +243,56 @@ footer{padding-block:36px}
     transition-duration:.001ms !important;scroll-behavior:auto !important;
   }
 }
+
+/* ======================================================================
+   Global text-size scaling.
+   --fs is a unitless multiplier (default 1). Every text size below is the
+   ORIGINAL size plus 2px, wrapped in calc(... * var(--fs)); at the default
+   the whole site reads +2px, and the header control scales it 85% to 150%.
+   The header chrome itself (wordmark, nav-links, the control buttons) stays
+   fixed so the 64px nav never overflows. Overrides sit last so equal
+   specificity wins over the originals above. */
+:root{--fs:1}
+.eyebrow{font-size:calc(14px * var(--fs))}
+h1{font-size:calc(34px * var(--fs))}
+.hero h1{font-size:calc(clamp(42px,6.4vw,66px) * var(--fs))}
+h2{font-size:calc(clamp(28px,3.4vw,36px) * var(--fs))}
+.lede{font-size:calc(19px * var(--fs))}
+.formula-pill{font-size:calc(clamp(14px,2vw,16.5px) * var(--fs))}
+.formula-note{font-size:calc(16px * var(--fs))}
+.scroll-cue{font-size:calc(16px * var(--fs))}
+.hero-visual-cap{font-size:calc(15px * var(--fs))}
+.legend-pill{font-size:calc(15px * var(--fs))}
+.callout h3{font-size:calc(17px * var(--fs))}
+.callout p{font-size:calc(16px * var(--fs))}
+.seg button{font-size:calc(15px * var(--fs))}
+.speed-btn{font-size:calc(14px * var(--fs))}
+.step-readout{font-size:calc(14.5px * var(--fs))}
+.formula-readout{font-size:calc(clamp(14.5px,2.4vw,16.5px) * var(--fs))}
+.viz-caption{font-size:calc(15px * var(--fs))}
+.editor-tabs button{font-size:calc(14.5px * var(--fs))}
+.editor-body pre{font-size:calc(15px * var(--fs))}
+.editor-note{font-size:calc(15px * var(--fs))}
+.complexity-card h3{font-size:calc(16px * var(--fs))}
+.complexity-stat{font-size:calc(16px * var(--fs))}
+.pattern-card p.lead{font-size:calc(clamp(20px,2.6vw,25px) * var(--fs))}
+.pattern-strip{font-size:calc(clamp(15px,2.4vw,17px) * var(--fs))}
+.problem-card .tag{font-size:calc(13px * var(--fs))}
+.problem-card h3{font-size:calc(20px * var(--fs))}
+.problem-card p{font-size:calc(16px * var(--fs))}
+.empty-note,.error-note{font-size:calc(16px * var(--fs))}
+.empty-note button{font-size:calc(15px * var(--fs))}
+.footer-row{font-size:calc(15px * var(--fs))}
+
+/* ---------- header layout + the text-size control (fixed, non-scaling) ---------- */
+.nav-actions{display:flex;align-items:center;gap:18px}
+.fs-control{display:inline-flex;align-items:center;background:var(--surface-2);border:1px solid var(--border);border-radius:999px;padding:3px}
+.fs-btn{
+  border:0;background:transparent;color:var(--text-muted);font-family:var(--sans);font-weight:700;font-size:14px;
+  padding:6px 11px;border-radius:999px;cursor:pointer;line-height:1;
+  transition:background .2s var(--ease),color .2s var(--ease);
+}
+.fs-btn:hover{background:var(--surface);color:var(--text)}
+.fs-btn:disabled{opacity:.4;cursor:not-allowed}
+.fs-btn:disabled:hover{background:transparent;color:var(--text-muted)}
+.fs-readout{font-family:var(--mono);font-weight:600;font-size:12px;min-width:40px}
