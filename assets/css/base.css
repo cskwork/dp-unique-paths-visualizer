@@ -203,7 +203,7 @@ code,.mono{font-family:var(--mono)}
 }
 .pattern-card p.lead{font-size:clamp(18px,2.6vw,23px);color:var(--text);font-weight:600;line-height:1.4;max-width:54ch}
 .pattern-strip{font-family:var(--mono);margin-top:18px;color:var(--accent);font-size:clamp(13px,2.4vw,15px)}
-.pattern-card .lede{margin-top:14px}
+.pattern-card .lede{margin-top:14px;color:var(--text)}
 
 /* ---------- problem card (used by index.html's grid and patterns.html's cross-links) ---------- */
 .problem-card{

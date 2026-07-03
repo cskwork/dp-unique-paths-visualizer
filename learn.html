@@ -1,0 +1,268 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Learn Dynamic Programming: a step-by-step course</title>
+<meta name="description" content="A beginner course in dynamic programming for anyone, including people who have never coded. Start from the core idea, then climb four visual problems one level at a time.">
+<link rel="icon" href="assets/img/favicon.svg">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/css/base.css">
+<style>
+  /* Bespoke to the course page: the plain-language idea cards, the four-question setup grid,
+     and the vertical level path that links each problem in order. Text rides the --fs scaler. */
+  .learn-hero{padding-top:clamp(48px,7vw,72px)}
+
+  /* the "what is DP" three-step idea, in plain words */
+  .idea-steps{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:16px;margin-top:26px}
+  .idea-step{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:22px}
+  .idea-step .n{font-family:var(--mono);font-size:calc(13px * var(--fs));font-weight:700;color:var(--accent)}
+  .idea-step h3{font-size:calc(17px * var(--fs));margin:8px 0 6px}
+  .idea-step p{font-size:calc(15px * var(--fs));color:var(--text-muted);line-height:1.55}
+
+  /* the four setup questions */
+  .qgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:16px;margin-top:24px}
+  .qcard{background:var(--surface);border:1px solid var(--border);border-left:3px solid var(--accent);border-radius:var(--radius);padding:20px}
+  .qcard .qn{font-family:var(--mono);font-size:calc(12px * var(--fs));letter-spacing:.04em;text-transform:uppercase;color:var(--accent);font-weight:600}
+  .qcard h3{font-size:calc(16.5px * var(--fs));margin:7px 0 6px;line-height:1.35}
+  .qcard p{font-size:calc(14.5px * var(--fs));color:var(--text-muted);line-height:1.5}
+  .qcard code{font-family:var(--mono);font-size:calc(13.5px * var(--fs));color:var(--text)}
+
+  /* the vertical course path */
+  .course-path{margin-top:30px}
+  .level{display:grid;grid-template-columns:auto 1fr;gap:clamp(14px,3vw,22px)}
+  .level-rail{display:flex;flex-direction:column;align-items:center}
+  .level-dot{width:46px;height:46px;border-radius:50%;display:flex;align-items:center;justify-content:center;
+    font-family:var(--mono);font-weight:700;font-size:calc(18px * var(--fs));background:var(--accent);color:var(--accent-ink);flex-shrink:0}
+  .level-line{width:2px;flex:1;background:var(--border);margin:6px 0;min-height:26px}
+  .level:last-child .level-line{display:none}
+  .level-body{display:block;text-decoration:none;color:inherit;background:var(--surface);border:1px solid var(--border);
+    border-radius:var(--radius);padding:20px 22px;margin-bottom:22px;transition:border-color .2s var(--ease),transform .2s var(--ease)}
+  .level-body:hover{border-color:var(--accent);transform:translateY(-2px)}
+  .level-top{display:flex;flex-wrap:wrap;align-items:center;gap:10px;margin-bottom:4px}
+  .level-top h3{font-size:calc(19px * var(--fs))}
+  .diff{font-family:var(--mono);font-size:calc(12px * var(--fs));font-weight:600;padding:2px 9px;border-radius:999px;border:1px solid var(--border)}
+  .diff.easy{color:var(--left)}
+  .diff.medium{color:var(--accent)}
+  .level-new{font-size:calc(15px * var(--fs));color:var(--text-muted);line-height:1.5;margin-top:6px}
+  .level-new b{color:var(--text);font-weight:600}
+  .level-foot{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:10px;margin-top:14px}
+  .level-rec{font-family:var(--mono);font-size:calc(13px * var(--fs));color:var(--accent);background:var(--surface-2);
+    border:1px solid var(--border);border-radius:var(--radius-sm);padding:6px 10px}
+  .level-go{font-family:var(--mono);font-size:calc(13px * var(--fs));font-weight:600;color:var(--accent)}
+  .level-go svg{vertical-align:middle;margin-left:2px}
+
+  .start-strip{margin-top:22px;display:flex;flex-wrap:wrap;gap:12px}
+  .start-btn{font-family:var(--sans);font-size:calc(15px * var(--fs));font-weight:600;text-decoration:none;
+    background:var(--accent);color:var(--accent-ink);border-radius:var(--radius);padding:12px 20px}
+  .start-btn.ghost{background:transparent;color:var(--text);border:1px solid var(--border)}
+  .start-btn.ghost:hover{border-color:var(--text-faint)}
+</style>
+</head>
+<body>
+<a class="skip-link" href="#main">Skip to content</a>
+
+<nav class="nav">
+  <div class="wrap">
+    <a class="wordmark" href="index.html"><span class="dot">▣</span> algo-patterns</a>
+    <div class="nav-actions">
+      <ul class="nav-links">
+        <li><a href="index.html">Problems</a></li>
+        <li><a href="learn.html" aria-current="page">Learn</a></li>
+        <li><a href="patterns.html">Patterns</a></li>
+        <li><a href="tips.html">Tips</a></li>
+      </ul>
+      <div class="fs-control" role="group" aria-label="Text size">
+        <button type="button" class="fs-btn" id="fsDown" aria-label="Decrease text size">A&minus;</button>
+        <button type="button" class="fs-btn fs-readout" id="fsReset" aria-label="Reset text size" title="Reset text size">100%</button>
+        <button type="button" class="fs-btn" id="fsUp" aria-label="Increase text size">A+</button>
+      </div>
+    </div>
+  </div>
+</nav>
+
+<main id="main">
+  <section class="learn-hero">
+    <div class="wrap">
+      <p class="eyebrow">The Dynamic Programming Course</p>
+      <h1>Dynamic programming, one small step at a time</h1>
+      <p class="lede">This course is for anyone, including people who have never written a line of code. Dynamic programming has a scary name and a simple heart. You will meet the idea in plain words, then climb four problems in order, watching each one build its answer cell by cell. No prior algorithms needed. Bring patience and a willingness to press play.</p>
+      <div class="start-strip">
+        <a class="start-btn" href="problems/climbing-stairs.html">Start level 1: Climbing Stairs</a>
+        <a class="start-btn ghost" href="#path">See the full path</a>
+      </div>
+    </div>
+  </section>
+
+  <section id="idea">
+    <div class="wrap">
+      <p class="eyebrow">The Core Idea</p>
+      <h2>Solve each small piece once, then reuse it</h2>
+      <p class="lede">Picture a cook with a notepad. Every time they finish a sauce, they write it down. When a later dish needs that sauce, they read the notepad instead of making it again. Dynamic programming is exactly that habit, applied to problems: break a big question into smaller versions of itself, solve each small version once, write the answer down, and reuse it forever after.</p>
+      <div class="idea-steps">
+        <div class="idea-step">
+          <span class="n">01</span>
+          <h3>Break it down</h3>
+          <p>A big question is usually made of smaller copies of the same question. The answer for 10 stairs leans on the answer for 9 and 8.</p>
+        </div>
+        <div class="idea-step">
+          <span class="n">02</span>
+          <h3>Write each answer down</h3>
+          <p>Keep a row of boxes, one per small version. Fill the easiest boxes first, then use them to fill the harder ones.</p>
+        </div>
+        <div class="idea-step">
+          <span class="n">03</span>
+          <h3>Never redo work</h3>
+          <p>Once a box has a number, it is final. Every later box just reads the boxes it needs. That reuse is the whole speed-up.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="setup">
+    <div class="wrap">
+      <p class="eyebrow">The Setup</p>
+      <h2>Four questions that unlock any DP problem</h2>
+      <p class="lede">You do not start by writing code. You start by answering these four questions in plain words. Every problem in this course is just these four answers, filled in. The first one matters most: if you cannot say what a saved answer means, nothing after it will make sense.</p>
+      <div class="qgrid">
+        <div class="qcard">
+          <span class="qn">Question 1</span>
+          <h3>What does each saved answer mean?</h3>
+          <p>Finish this sentence out loud before anything else: <code>dp[i] is the ___</code>. The number of ways to reach stair i. The cheapest cost to reach it. The best haul up to house i.</p>
+        </div>
+        <div class="qcard">
+          <span class="qn">Question 2</span>
+          <h3>What is the choice at each step?</h3>
+          <p>Are you counting every route (add), paying for one (keep the min), or picking items (keep the max)? The choice decides whether you add, min, or max.</p>
+        </div>
+        <div class="qcard">
+          <span class="qn">Question 3</span>
+          <h3>How does a bigger answer use smaller ones?</h3>
+          <p>This is the recurrence: one short line saying how <code>dp[i]</code> is built from earlier boxes like <code>dp[i-1]</code> and <code>dp[i-2]</code>.</p>
+        </div>
+        <div class="qcard">
+          <span class="qn">Question 4</span>
+          <h3>Which cases can you fill in directly?</h3>
+          <p>The base cases: the first box or two that you know without any formula. Get these right first, then let the recurrence handle the rest.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="path">
+    <div class="wrap">
+      <p class="eyebrow">The Path</p>
+      <h2>Four levels, each adding exactly one idea</h2>
+      <p class="lede">Climb in order. The first three problems share the same picture, a single row of boxes filled left to right, and change only one thing each time: first you add, then you keep the cheaper, then you keep the better. The fourth turns that row into a grid. By the end, the grid problem that looked hard on day one reads as one more small step.</p>
+
+      <div class="course-path">
+        <div class="level">
+          <div class="level-rail"><span class="level-dot">1</span><span class="level-line"></span></div>
+          <a class="level-body" href="problems/climbing-stairs.html">
+            <div class="level-top">
+              <h3>Climbing Stairs</h3>
+              <span class="diff easy">Easy</span>
+            </div>
+            <p class="level-new"><b>New idea: add the two ways in.</b> Count how many ways there are to climb a staircase. To reach a stair, add the ways to reach the two stairs below it. This is the plainest possible recurrence.</p>
+            <div class="level-foot">
+              <span class="level-rec">dp[i] = dp[i-1] + dp[i-2]</span>
+              <span class="level-go">Start level 1 <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"/></svg></span>
+            </div>
+          </a>
+        </div>
+
+        <div class="level">
+          <div class="level-rail"><span class="level-dot">2</span><span class="level-line"></span></div>
+          <a class="level-body" href="problems/min-cost-climbing-stairs.html">
+            <div class="level-top">
+              <h3>Min Cost Climbing Stairs</h3>
+              <span class="diff easy">Easy</span>
+            </div>
+            <p class="level-new"><b>New idea: keep the cheaper.</b> Now each stair has a price. The two routes into a stair are still there, but instead of adding them you keep the cheaper total. Add becomes min.</p>
+            <div class="level-foot">
+              <span class="level-rec">dp[i] = min(dp[i-1]+cost[i-1], dp[i-2]+cost[i-2])</span>
+              <span class="level-go">Start level 2 <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"/></svg></span>
+            </div>
+          </a>
+        </div>
+
+        <div class="level">
+          <div class="level-rail"><span class="level-dot">3</span><span class="level-line"></span></div>
+          <a class="level-body" href="problems/house-robber.html">
+            <div class="level-top">
+              <h3>House Robber</h3>
+              <span class="diff medium">Medium</span>
+            </div>
+            <p class="level-new"><b>New idea: take it or skip it.</b> A row of houses, no two neighbors allowed. At each house, weigh skipping against robbing, and keep the larger haul. Here the choice keeps the max.</p>
+            <div class="level-foot">
+              <span class="level-rec">dp[i] = max(dp[i-1], dp[i-2]+nums[i])</span>
+              <span class="level-go">Start level 3 <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"/></svg></span>
+            </div>
+          </a>
+        </div>
+
+        <div class="level">
+          <div class="level-rail"><span class="level-dot">4</span><span class="level-line"></span></div>
+          <a class="level-body" href="problems/unique-paths.html">
+            <div class="level-top">
+              <h3>Unique Paths</h3>
+              <span class="diff medium">Medium</span>
+            </div>
+            <p class="level-new"><b>New idea: one row becomes a grid.</b> The same reasoning, now in two dimensions. A robot counts paths across a grid, and each cell adds the cell above and the cell to its left. The row you mastered grows a second axis.</p>
+            <div class="level-foot">
+              <span class="level-rec">dp[r][c] = dp[r-1][c] + dp[r][c-1]</span>
+              <span class="level-go">Start level 4 <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"/></svg></span>
+            </div>
+          </a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="habits">
+    <div class="wrap">
+      <p class="eyebrow">Common Traps</p>
+      <h2>Three habits that prevent most beginner mistakes</h2>
+      <div class="callout-row">
+        <div class="callout">
+          <h3>Say what the box means, in words</h3>
+          <p>Most stuck moments trace back to a fuzzy state. Write one plain sentence for dp[i] before you write any formula.</p>
+        </div>
+        <div class="callout">
+          <h3>Get the base cases right first</h3>
+          <p>The easy first boxes are where quiet bugs hide. Fill and hand-check them before trusting the recurrence.</p>
+        </div>
+        <div class="callout">
+          <h3>Do not shrink memory too early</h3>
+          <p>Get the full row of boxes correct first. Compressing it down to two variables is a separate, later step.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="close">
+    <div class="wrap">
+      <div class="pattern-card">
+        <p class="lead">You are not here to memorize templates.</p>
+        <p class="lede">A memorized template breaks the moment a problem is twisted. The four questions do not. Once naming the state and the choice feels natural, dynamic programming stops being a category of scary problems and becomes a habit you carry into new ones. When you are ready, read the <a href="tips.html">solving tips</a> for the wider habits, or browse the <a href="patterns.html#dynamic-programming">Dynamic Programming field guide</a>.</p>
+        <div class="start-strip">
+          <a class="start-btn" href="problems/climbing-stairs.html">Begin the course</a>
+          <a class="start-btn ghost" href="index.html">Browse all problems</a>
+        </div>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer>
+  <div class="wrap footer-row">
+    <span>Algorithm Patterns, Visualized. Back to the <a href="index.html">problem library</a>, the <a href="patterns.html">pattern field guide</a>, or the <a href="tips.html">solving tips</a>.</span>
+    <span>Runs entirely in your browser. Respects reduced motion.</span>
+  </div>
+</footer>
+
+<script src="assets/js/font-scale.js"></script>
+</body>
+</html>

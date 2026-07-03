@@ -1,0 +1,413 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Climbing Stairs: 1D Dynamic Programming, Visualized</title>
+<meta name="description" content="The gentlest first dynamic programming problem, step by step: count the ways to climb a staircase by adding the ways to reach the two stairs below.">
+<link rel="icon" href="../assets/img/favicon.svg">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../assets/css/base.css">
+<style>
+  /* Bespoke to this problem: a single left-to-right array strip, the 1D DP visual metaphor
+     shared by the three entry-level problems (climbing stairs, min cost, house robber). */
+  :root{ --scell:clamp(44px,11.5vw,66px); }
+
+  /* level chip in the hero, shared wording with the course page */
+  .level-chip{display:inline-block;font-family:var(--mono);font-size:11px;font-weight:700;letter-spacing:.06em;
+    text-transform:uppercase;color:var(--accent);border:1px solid var(--accent);border-radius:999px;padding:3px 10px;margin-bottom:14px}
+
+  /* the plain-English "what dp[i] means" callout, repeated on every 1D page */
+  .means{background:var(--surface);border:1px solid var(--border);border-left:3px solid var(--accent);
+    border-radius:var(--radius);padding:16px 18px;margin-top:24px}
+  .means .k{font-family:var(--mono);font-size:12px;letter-spacing:.05em;text-transform:uppercase;color:var(--accent);font-weight:600}
+  .means p{margin-top:6px;color:var(--text);line-height:1.5}
+
+  /* static mini strip (hero + result) */
+  .mini-strip{display:flex;gap:6px;justify-content:center;flex-wrap:wrap}
+  .mini-scell{width:clamp(34px,8.6vw,50px);min-height:clamp(40px,9.4vw,54px);display:flex;flex-direction:column;
+    align-items:center;justify-content:center;gap:2px;background:var(--surface-2);border:1px solid var(--border);
+    border-radius:8px;padding:4px 2px}
+  .mini-scell .ix{font-family:var(--mono);font-size:9px;color:var(--text-muted);letter-spacing:.02em}
+  .mini-scell .vv{font-family:var(--mono);font-size:clamp(13px,2.6vw,16px);color:var(--text)}
+  .mini-scell.win{background:var(--accent-soft);border-color:var(--accent)}
+  .mini-scell.win .vv{color:var(--accent);font-weight:700}
+
+  /* idea diagram: two sources feeding one target */
+  .idea-diagram{display:flex;align-items:center;justify-content:center;gap:clamp(6px,2.4vw,16px);flex-wrap:wrap;margin:36px 0 26px}
+  .idea-cell{width:clamp(112px,25vw,148px);min-height:62px;border-radius:10px;display:flex;flex-direction:column;
+    align-items:center;justify-content:center;text-align:center;font-family:var(--mono);font-size:clamp(10px,2vw,12px);
+    border:1px solid var(--border);background:var(--surface);color:var(--text-muted);padding:8px}
+  .idea-cell b{font-size:12px;color:var(--text);font-weight:600;display:block;margin-top:4px}
+  .idea-cell.back1{border-color:var(--accent);color:var(--accent)} .idea-cell.back1 b{color:var(--accent)}
+  .idea-cell.back2{border-color:var(--left);color:var(--left)} .idea-cell.back2 b{color:var(--left)}
+  .idea-cell.target{background:var(--accent-soft);border-color:var(--accent);color:var(--text)} .idea-cell.target b{color:var(--text);font-size:14px}
+  .idea-op{font-family:var(--mono);font-size:clamp(16px,4vw,22px);color:var(--text-faint)}
+
+  .derivation{font-family:var(--mono);text-align:center;font-size:clamp(13px,2.6vw,17px);color:var(--text);
+    background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:18px;margin-top:8px}
+  .derivation .b1{color:var(--accent)} .derivation .b2{color:var(--left)}
+
+  /* the 1D strip visualizer */
+  .strip{display:flex;gap:8px;justify-content:center;flex-wrap:wrap}
+  .scell{width:var(--scell);min-height:var(--scell);display:flex;flex-direction:column;align-items:center;
+    justify-content:center;gap:3px;position:relative;background:var(--surface-2);border:1px solid var(--border);
+    border-radius:10px;
+    transition:background .35s var(--ease),border-color .35s var(--ease),transform .35s var(--ease),box-shadow .35s var(--ease);}
+  .scell .ix{font-family:var(--mono);font-size:10px;color:var(--text-muted);letter-spacing:.02em}
+  .scell .vv{font-family:var(--mono);font-size:clamp(15px,3.4vw,20px);color:var(--text-faint);font-weight:600}
+  .scell.settled .vv{color:var(--text)}
+  .scell.boundary.settled .vv{color:var(--text-muted)}
+  .scell.active{border-color:var(--text);transform:scale(1.08);z-index:2}
+  .scell.active .vv{color:var(--text);font-weight:700}
+  .scell.src-back1{border-color:var(--accent);box-shadow:0 0 0 2px var(--accent-soft)}
+  .scell.src-back2{border-color:var(--left);box-shadow:0 0 0 2px var(--left-soft)}
+
+  .row-tag{font-family:var(--mono);font-size:11px;color:var(--text-faint);text-align:center;margin-bottom:16px}
+
+  .result-cap{text-align:center;margin-top:16px;font-size:14px}
+</style>
+</head>
+<body>
+<a class="skip-link" href="#main">Skip to content</a>
+
+<nav class="nav">
+  <div class="wrap">
+    <a class="wordmark" href="../index.html"><span class="dot">▣</span> algo-patterns</a>
+    <div class="nav-actions">
+      <ul class="nav-links">
+        <li><a href="../index.html" aria-current="page">Problems</a></li>
+        <li><a href="../learn.html">Learn</a></li>
+        <li><a href="../patterns.html">Patterns</a></li>
+        <li><a href="../tips.html">Tips</a></li>
+      </ul>
+      <div class="fs-control" role="group" aria-label="Text size">
+        <button type="button" class="fs-btn" id="fsDown" aria-label="Decrease text size">A&minus;</button>
+        <button type="button" class="fs-btn fs-readout" id="fsReset" aria-label="Reset text size" title="Reset text size">100%</button>
+        <button type="button" class="fs-btn" id="fsUp" aria-label="Increase text size">A+</button>
+      </div>
+    </div>
+  </div>
+</nav>
+
+<main id="main">
+
+  <section class="hero" id="top">
+    <div class="wrap hero-grid">
+      <div>
+        <span class="level-chip">Course level 1</span>
+        <p class="eyebrow">Dynamic Programming · Counting Ways</p>
+        <h1>Climbing Stairs</h1>
+        <p class="lede">You are climbing a staircase of n stairs. Each move, you take either 1 stair or 2. How many different ways can you reach the top? This is the gentlest place to meet dynamic programming, so we start here.</p>
+        <div class="formula-pill"><span class="mono">dp[i] = <b>dp[i-1]</b> + <b>dp[i-2]</b></span></div>
+        <p class="formula-note muted">The ways to reach a stair are the ways to reach the two stairs below it, added together.</p>
+        <a class="scroll-cue" href="#visualizer">
+          See it build
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M6 9l6 6 6-6"/></svg>
+        </a>
+      </div>
+      <div class="hero-visual">
+        <div class="mini-strip" id="heroStrip"></div>
+        <p class="hero-visual-cap">n = 5 stairs → <b>8</b> different ways to the top.</p>
+      </div>
+    </div>
+  </section>
+
+  <section id="problem">
+    <div class="wrap">
+      <p class="eyebrow">The Problem</p>
+      <h2>Count the ways, do not list them</h2>
+      <p class="lede">For a small staircase you could draw every route by hand: 1+1+1, 1+2, 2+1, and so on. That list explodes as the staircase grows. We want the count, and we want it without drawing a single route.</p>
+
+      <div class="means">
+        <span class="k">What dp[i] means, in words</span>
+        <p>dp[i] is the number of different ways to reach stair i. Saying this in plain words first is the habit that makes every later step obvious.</p>
+      </div>
+
+      <div class="callout-row" style="margin-top:24px">
+        <div class="callout">
+          <h3>The ground (stair 0)</h3>
+          <p>You start here before climbing. There is exactly one way to be at the start: do nothing yet. So dp[0] = 1.</p>
+        </div>
+        <div class="callout">
+          <h3>The first stair (stair 1)</h3>
+          <p>Only one move reaches it: a single 1-stair step. There is no room for a 2-stair step yet. So dp[1] = 1.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="idea">
+    <div class="wrap">
+      <p class="eyebrow">The Key Idea</p>
+      <h2>Every stair has exactly two ways in</h2>
+      <p class="lede">Stand on any stair past the first. Your very last move was either a 1-stair step from the stair just below, or a 2-stair step from two stairs below. There is no third way to arrive. So the ways to reach this stair are simply the ways to reach those two stairs, added up.</p>
+
+      <div class="idea-diagram">
+        <div class="idea-cell back2">two stairs below<b>dp[i-2]</b></div>
+        <div class="idea-op">+</div>
+        <div class="idea-cell back1">one stair below<b>dp[i-1]</b></div>
+        <div class="idea-op">=</div>
+        <div class="idea-cell target">this stair<b>dp[i]</b></div>
+      </div>
+
+      <div class="derivation">dp[i] = <span class="b1">dp[i-1]</span> + <span class="b2">dp[i-2]</span></div>
+    </div>
+  </section>
+
+  <section id="visualizer">
+    <div class="wrap">
+      <p class="eyebrow">Try It</p>
+      <h2>Fill the strip, one stair at a time</h2>
+      <p class="lede">Press play, or step through it by hand. Each cell is one stair. The two base cells are already filled; every cell after them is the sum of the two cells to its left.</p>
+
+      <div class="viz-panel">
+        <div class="viz-toolbar">
+          <div class="transport">
+            <button class="ctrl-btn" id="btnReset" aria-label="Reset">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M3 12a9 9 0 1 1 3 6.7"/><path d="M3 4v5h5"/></svg>
+            </button>
+            <button class="ctrl-btn" id="btnBack" aria-label="Step back">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M15 6l-6 6 6 6"/></svg>
+            </button>
+            <button class="ctrl-btn primary" id="btnPlay" aria-label="Play">
+              <svg id="iconPlay" viewBox="0 0 24 24" fill="currentColor"><path d="M7 5l13 7-13 7z"/></svg>
+              <svg id="iconPause" viewBox="0 0 24 24" fill="currentColor" style="display:none"><path d="M7 5h3v14H7zM14 5h3v14h-3z"/></svg>
+            </button>
+            <button class="ctrl-btn" id="btnFwd" aria-label="Step forward">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"/></svg>
+            </button>
+            <button class="ctrl-btn speed-btn" id="btnSpeed">1×</button>
+          </div>
+          <p class="step-readout">Step <b id="stepNow">0</b> / <span id="stepMax">0</span></p>
+        </div>
+
+        <p class="row-tag" id="rowTag">Press play to start filling the strip</p>
+        <div class="grid-stage">
+          <div class="strip" id="dpStrip"></div>
+        </div>
+
+        <div class="formula-readout" id="formulaReadout" aria-live="polite">Press play or step forward to begin.</div>
+      </div>
+      <p class="viz-caption">The amber ring marks the stair <span style="color:var(--accent)">one below</span> (a +1 move in); the teal ring marks the stair <span style="color:var(--left)">two below</span> (a +2 move in).</p>
+    </div>
+  </section>
+
+  <section id="result">
+    <div class="wrap">
+      <p class="eyebrow">The Result</p>
+      <h2>The filled strip</h2>
+      <p class="lede">For 5 stairs, the recurrence above produces this strip. The last cell is the answer: the number of ways to reach the top.</p>
+      <div class="mini-strip" id="resultStrip" aria-label="Filled DP strip for 5 stairs"></div>
+      <p class="result-cap muted"><b style="color:var(--accent)">8</b> different ways to climb 5 stairs. The numbers are the Fibonacci sequence, which is no accident.</p>
+    </div>
+  </section>
+
+  <section id="code">
+    <div class="wrap">
+      <p class="eyebrow">The Code</p>
+      <h2>Same idea, two implementations</h2>
+      <p class="lede">The array version keeps every stair's count. The two-variable version keeps only the last two counts, since that is all the recurrence ever looks at.</p>
+
+      <div class="editor">
+        <div class="editor-bar">
+          <div class="traffic"><span></span><span></span><span></span></div>
+          <div class="editor-tabs" role="tablist" aria-label="Code samples">
+            <button role="tab" id="tabArr" aria-selected="true">ClimbingStairs.java</button>
+            <button role="tab" id="tabOpt" aria-selected="false">TwoVariables.java</button>
+          </div>
+        </div>
+        <div class="editor-body"><pre id="codeBody"></pre></div>
+        <p class="editor-note" id="codeNote"></p>
+      </div>
+    </div>
+  </section>
+
+  <section id="complexity">
+    <div class="wrap">
+      <p class="eyebrow">Complexity</p>
+      <h2>What the optimization actually buys you</h2>
+      <div class="complexity-row">
+        <div class="complexity-card">
+          <h3>Array</h3>
+          <div class="complexity-stat"><span class="muted">Time</span><b>O(n)</b></div>
+          <div class="complexity-stat"><span class="muted">Space</span><b>O(n)</b></div>
+        </div>
+        <div class="complexity-card">
+          <h3>Two variables</h3>
+          <div class="complexity-stat"><span class="muted">Time</span><b>O(n)</b></div>
+          <div class="complexity-stat"><span class="muted">Space</span><b>O(1)</b></div>
+        </div>
+      </div>
+      <p class="lede" style="margin-top:18px">Get the plain array correct first. Compressing it to two variables is a second step, once you trust the recurrence.</p>
+    </div>
+  </section>
+
+  <section id="pattern">
+    <div class="wrap">
+      <p class="eyebrow">Pattern To Remember</p>
+      <div class="pattern-card">
+        <p class="lead">When the answer for step i is built from a fixed handful of earlier answers, you are looking at a one-dimensional recurrence.</p>
+        <p class="pattern-strip">dp[i] = combine(dp[i-1], dp[i-2], ...)</p>
+        <p class="lede">The same shape returns in Fibonacci, Min Cost Climbing Stairs, House Robber, Decode Ways, and Tribonacci. Next on the course: <a href="min-cost-climbing-stairs.html">Min Cost Climbing Stairs</a>, where each stair carries a price.</p>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<footer>
+  <div class="wrap footer-row">
+    <span>Part of <a href="../index.html">Algorithm Patterns, Visualized</a>. Follow the <a href="../learn.html">course</a> or read the <a href="../patterns.html#dynamic-programming">Dynamic Programming field guide</a>.</span>
+    <span>Runs entirely in your browser. Respects reduced motion.</span>
+  </div>
+</footer>
+
+<script src="../assets/js/step-player.js"></script>
+<script src="../assets/js/code-panel.js"></script>
+<script>
+(function(){
+  "use strict";
+  var N = 5; // stairs; strip holds indices 0..N
+
+  function computeDp(n){
+    var dp = new Array(n + 1).fill(0);
+    dp[0] = 1;
+    if (n >= 1) dp[1] = 1;
+    for (var i = 2; i <= n; i++){ dp[i] = dp[i-1] + dp[i-2]; }
+    return dp;
+  }
+
+  function buildSteps(n){
+    var dp = computeDp(n);
+    var steps = [];
+    for (var i = 0; i <= n; i++){
+      steps.push({
+        i: i, value: dp[i], base: i < 2,
+        back1: i >= 2 ? dp[i-1] : null,
+        back2: i >= 2 ? dp[i-2] : null
+      });
+    }
+    return { dp: dp, steps: steps };
+  }
+
+  var DATA = buildSteps(N);
+  var TOTAL = DATA.steps.length;
+
+  function renderMiniStrip(el, mode){
+    el.innerHTML = "";
+    for (var i = 0; i <= N; i++){
+      var cell = document.createElement("div");
+      cell.className = "mini-scell" + (mode === "solved" && i === N ? " win" : "");
+      var ix = document.createElement("span"); ix.className = "ix"; ix.textContent = i;
+      var vv = document.createElement("span"); vv.className = "vv";
+      vv.textContent = mode === "solved" ? DATA.dp[i] : (i < 2 ? DATA.dp[i] : "?");
+      cell.appendChild(ix); cell.appendChild(vv);
+      el.appendChild(cell);
+    }
+  }
+  renderMiniStrip(document.getElementById("heroStrip"), "solved");
+  renderMiniStrip(document.getElementById("resultStrip"), "solved");
+
+  var stripEl = document.getElementById("dpStrip");
+  var rowTagEl = document.getElementById("rowTag");
+  var formulaEl = document.getElementById("formulaReadout");
+
+  function render(current){
+    stripEl.innerHTML = "";
+    rowTagEl.textContent = current < 0
+      ? "Press play to start filling the strip"
+      : (current < 2
+          ? "Filling base case: stair " + current + " (given, not computed)"
+          : "Filling stair " + current + " from the two stairs below it");
+
+    for (var i = 0; i <= N; i++){
+      var s = DATA.steps[i];
+      var cell = document.createElement("div");
+      cell.className = "scell" + (s.base ? " boundary" : "");
+      if (i <= current){
+        cell.classList.add("settled");
+      }
+      if (i === current){
+        cell.classList.add("active");
+      }
+      // highlight the two source cells of the active, non-base cell
+      if (current >= 2 && !DATA.steps[current].base){
+        if (i === current - 1) cell.classList.add("src-back1");
+        if (i === current - 2) cell.classList.add("src-back2");
+      }
+      var ix = document.createElement("span"); ix.className = "ix"; ix.textContent = i;
+      var vv = document.createElement("span"); vv.className = "vv";
+      vv.textContent = i <= current ? s.value : "";
+      cell.appendChild(ix); cell.appendChild(vv);
+      stripEl.appendChild(cell);
+    }
+  }
+
+  function renderFormula(current){
+    if (current < 0){ formulaEl.textContent = "Press play or step forward to begin."; return; }
+    var s = DATA.steps[current];
+    if (s.i === 0){ formulaEl.textContent = "dp[0] = 1  (the ground: one way to be at the start, before any climbing)"; return; }
+    if (s.i === 1){ formulaEl.textContent = "dp[1] = 1  (one stair: only a single 1-step reaches it)"; return; }
+    formulaEl.innerHTML = "dp[" + s.i + "] = <span class='ft'>dp[" + (s.i-1) + "]</span> + <span class='fl'>dp[" + (s.i-2) + "]</span> = " +
+      s.back1 + " + " + s.back2 + " = " + s.value;
+  }
+
+  function renderAtStep(current){ render(current); renderFormula(current); }
+
+  StepPlayer.create({ totalSteps: TOTAL, onChange: renderAtStep });
+
+  CodePanel.create({
+    types: ["Solution"],
+    tabs: [
+      {
+        id: "tabArr",
+        note: "dp[i] is the number of ways to reach stair i. The two base cases are given by the problem, not produced by the recurrence.",
+        lines: [
+          ["class Solution {", null],
+          ["    public int climbStairs(int n) {", null],
+          ["        int[] dp = new int[n + 1];", null],
+          ["", null],
+          ["        // Base cases: one way to stand on the ground or the first stair", "cm"],
+          ["        dp[0] = 1;", null],
+          ["        dp[1] = 1;", null],
+          ["", null],
+          ["        // Each later stair: from one below, or from two below", "cm"],
+          ["        for (int i = 2; i <= n; i++) {", null],
+          ["            dp[i] = dp[i - 1] + dp[i - 2];", null],
+          ["        }", null],
+          ["", null],
+          ["        return dp[n];", null],
+          ["    }", null],
+          ["}", null]
+        ]
+      },
+      {
+        id: "tabOpt",
+        note: "The recurrence never looks back more than two stairs, so two remembered numbers replace the whole array.",
+        lines: [
+          ["class Solution {", null],
+          ["    public int climbStairs(int n) {", null],
+          ["        int twoBack = 1;   // ways to reach the stair two below", null],
+          ["        int oneBack = 1;   // ways to reach the stair one below", null],
+          ["", null],
+          ["        for (int i = 2; i <= n; i++) {", null],
+          ["            int current = oneBack + twoBack;", null],
+          ["            twoBack = oneBack;", null],
+          ["            oneBack = current;", null],
+          ["        }", null],
+          ["", null],
+          ["        return oneBack;", null],
+          ["    }", null],
+          ["}", null]
+        ]
+      }
+    ]
+  });
+})();
+</script>
+<script src="../assets/js/font-scale.js"></script>
+</body>
+</html>

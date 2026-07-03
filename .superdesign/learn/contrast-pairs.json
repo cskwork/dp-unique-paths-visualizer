@@ -1,0 +1,17 @@
+[
+  { "el": "h1 hero headline", "fg": "#e8eaed", "bg": "#0b0d10", "size": "large" },
+  { "el": "h2 section headline", "fg": "#e8eaed", "bg": "#0b0d10", "size": "large" },
+  { "el": "lede/muted text on page bg", "fg": "#9aa3b2", "bg": "#0b0d10", "size": "normal" },
+  { "el": "faint footer text on page bg", "fg": "#7a8190", "bg": "#0b0d10", "size": "normal" },
+  { "el": "eyebrow accent on page bg", "fg": "#f2b84b", "bg": "#0b0d10", "size": "normal" },
+  { "el": "ghost start button text on page bg", "fg": "#e8eaed", "bg": "#0b0d10", "size": "normal" },
+  { "el": "text on surface (idea step, question card, level body title, callout, level-new bold)", "fg": "#e8eaed", "bg": "#12151a", "size": "normal" },
+  { "el": "muted text on surface (descriptions, level-new, question card body)", "fg": "#9aa3b2", "bg": "#12151a", "size": "normal" },
+  { "el": "accent on surface (idea step number, question label, level go, diff medium)", "fg": "#f2b84b", "bg": "#12151a", "size": "normal" },
+  { "el": "teal easy difficulty pill on surface", "fg": "#3fd0c9", "bg": "#12151a", "size": "normal" },
+  { "el": "accent recurrence pill on surface-2", "fg": "#f2b84b", "bg": "#171b21", "size": "normal" },
+  { "el": "dark ink on accent (level dot number, solid start button)", "fg": "#1a1304", "bg": "#f2b84b", "size": "normal" },
+  { "el": "accent on accent-tinted pattern card over page bg", "fg": "#f2b84b", "bg": "#2b2518", "size": "normal" },
+  { "el": "pattern card lead text (large) over page bg", "fg": "#e8eaed", "bg": "#2b2518", "size": "large" },
+  { "el": "pattern card secondary line text over page bg", "fg": "#e8eaed", "bg": "#2b2518", "size": "normal" }
+]

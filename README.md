@@ -11,7 +11,9 @@ A static site with no build step, hosted on GitHub Pages. Open the live link abo
 This project turns algorithm problems into visualizations you can play, pause, and step through one move at a time, so the idea behind each solution is something you watch rather than something you decode from code alone. Problems are grouped by the recurring pattern that solves them, so learning one problem also strengthens your grip on every other problem that shares its shape.
 
 - **Home** (`index.html`): a searchable, filterable grid of problem cards.
+- **Course** (`learn.html`): a beginner path through dynamic programming for anyone, including people who have never coded. Four problems in increasing difficulty, each adding one idea.
 - **Patterns** (`patterns.html`): a field guide to the ten recurring patterns, each cross-linked to the problems on the site that use it.
+- **Tips** (`tips.html`): solving-mindset habits plus a four-question setup for dynamic programming problems.
 - **Problem pages** (`problems/<slug>.html`): one page per problem, each with a bespoke visualization, a play/pause/step transport, a code panel, and complexity notes.
 
 ## Live site
@@ -24,9 +26,12 @@ Deployed from the `main` branch (root path). No build step and no GitHub Actions
 
 | Problem | Pattern | Difficulty |
 |---|---|---|
+| [Climbing Stairs](https://cskwork.github.io/dp-unique-paths-visualizer/problems/climbing-stairs.html) | Dynamic Programming | Easy |
+| [Min Cost Climbing Stairs](https://cskwork.github.io/dp-unique-paths-visualizer/problems/min-cost-climbing-stairs.html) | Dynamic Programming | Easy |
+| [House Robber](https://cskwork.github.io/dp-unique-paths-visualizer/problems/house-robber.html) | Dynamic Programming | Medium |
 | [Unique Paths](https://cskwork.github.io/dp-unique-paths-visualizer/problems/unique-paths.html) | Dynamic Programming | Medium |
 
-More problems are added over time. Each new problem also appears under its pattern on the patterns page.
+New to the topic? The [step-by-step course](https://cskwork.github.io/dp-unique-paths-visualizer/learn.html) walks these four in order, from adding two numbers to a full grid. More problems are added over time. Each new problem also appears under its pattern on the patterns page.
 
 ## Patterns
 
@@ -52,7 +57,9 @@ The data registries (`problems-data.js`, `patterns-data.js`) load as plain globa
 
 ```
 index.html                  home: searchable/filterable problem card grid
+learn.html                  beginner course: a level-based path through the problems
 patterns.html               pattern field guide (one section per pattern + cross-links)
+tips.html                   solving-mindset habits + a four-question DP setup
 problems/<slug>.html        one file per problem (flat, no per-problem folders)
 problems/_template.html     starting point for a new problem page
 assets/css/base.css         shared design tokens, nav, viz toolbar, code panel, cards

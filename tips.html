@@ -62,6 +62,7 @@
     <div class="nav-actions">
       <ul class="nav-links">
         <li><a href="index.html">Problems</a></li>
+        <li><a href="learn.html">Learn</a></li>
         <li><a href="patterns.html">Patterns</a></li>
         <li><a href="tips.html" aria-current="page">Tips</a></li>
       </ul>
@@ -79,7 +80,7 @@
     <div class="wrap">
       <p class="eyebrow">Solving Mindset</p>
       <h1>How to think before you code</h1>
-      <p class="lede">Before you reach for a specific algorithm, a few habits shape how you approach any problem: read the constraints, find the structure, and prove the move before you make it. Pair these with <a href="index.html">the problem library</a> and the <a href="patterns.html">pattern field guide</a>.</p>
+      <p class="lede">Before you reach for a specific algorithm, a few habits shape how you approach any problem: read the constraints, find the structure, and prove the move before you make it. Pair these with <a href="index.html">the problem library</a>, the <a href="learn.html">step-by-step course</a>, and the <a href="patterns.html">pattern field guide</a>.</p>
     </div>
   </section>
 
@@ -204,6 +205,48 @@
 
   <section>
     <div class="wrap">
+      <h2>Set up any dynamic programming problem in four questions</h2>
+      <p class="lede">When a problem rewards remembering earlier answers instead of redoing them, it is usually dynamic programming. Before writing code, answer these four in plain words. You can work through them live in the <a href="learn.html">step-by-step course</a>.</p>
+      <div class="tip-grid">
+        <article class="tip">
+          <div class="tip-head"><span class="tip-num">Q1</span><h3>What does each saved answer mean?</h3></div>
+          <p>Finish the sentence <code>dp[i] is the ...</code> out loud. A fuzzy state is the root of most stuck moments.</p>
+        </article>
+        <article class="tip">
+          <div class="tip-head"><span class="tip-num">Q2</span><h3>What is the choice at each step?</h3></div>
+          <p>Counting every route means add. Paying for one means keep the min. Picking items means keep the max.</p>
+        </article>
+        <article class="tip">
+          <div class="tip-head"><span class="tip-num">Q3</span><h3>How does a bigger answer use smaller ones?</h3></div>
+          <p>The recurrence: one line building <code>dp[i]</code> from earlier boxes such as <code>dp[i-1]</code> and <code>dp[i-2]</code>.</p>
+        </article>
+        <article class="tip">
+          <div class="tip-head"><span class="tip-num">Q4</span><h3>Which cases can you fill directly?</h3></div>
+          <p>The base cases: the first box or two you know with no formula. Hand-check them before trusting the rest.</p>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="wrap">
+      <h2>Two tools that make DP click</h2>
+      <p class="lede">The idea lands faster when you can see the boxes fill, whether you draw them or press play.</p>
+      <div class="callout-row">
+        <div class="callout">
+          <h3>Draw the table by hand first</h3>
+          <p>On paper, draw one box per subproblem and fill them left to right. Watching the numbers appear turns an abstract recurrence into something you can point at.</p>
+        </div>
+        <div class="callout">
+          <h3>Step through the visualizer</h3>
+          <p>Every problem on this site plays back one cell at a time. Pause on any step and read what each box means before moving on. Start with <a href="problems/climbing-stairs.html">Climbing Stairs</a>.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="wrap">
       <div class="pattern-card">
         <p class="lead">The one question that matters most.</p>
         <div class="mindset-contrast">
@@ -224,7 +267,7 @@
 
 <footer>
   <div class="wrap footer-row">
-    <span>Algorithm Patterns, Visualized. Back to the <a href="index.html">problem library</a> or the <a href="patterns.html">pattern field guide</a>.</span>
+    <span>Algorithm Patterns, Visualized. Back to the <a href="index.html">problem library</a>, the <a href="learn.html">course</a>, or the <a href="patterns.html">pattern field guide</a>.</span>
     <span>Runs entirely in your browser. Respects reduced motion.</span>
   </div>
 </footer>

@@ -37,6 +37,19 @@
   .problem-grid{
     display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:18px;margin-top:18px;
   }
+
+  /* beginner call to the guided course */
+  .course-banner{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:14px;
+    margin-top:28px;padding:18px 22px;background:var(--surface);border:1px solid var(--border);
+    border-left:3px solid var(--accent);border-radius:var(--radius);text-decoration:none;
+    transition:border-color .2s var(--ease),transform .2s var(--ease)}
+  .course-banner:hover{border-color:var(--accent);transform:translateY(-2px)}
+  .course-banner .cb-text{max-width:660px}
+  .course-banner .cb-eyebrow{display:block;font-family:var(--mono);font-size:12px;letter-spacing:.05em;
+    text-transform:uppercase;color:var(--accent);font-weight:600;margin-bottom:4px}
+  .course-banner .cb-desc{display:block;font-size:14.5px;color:var(--text-muted);line-height:1.5}
+  .course-banner .cb-btn{flex-shrink:0;font-family:var(--sans);font-weight:600;font-size:14.5px;
+    background:var(--accent);color:var(--accent-ink);border-radius:var(--radius);padding:11px 18px}
 </style>
 </head>
 <body>
@@ -48,6 +61,7 @@
     <div class="nav-actions">
       <ul class="nav-links">
         <li><a href="index.html" aria-current="page">Problems</a></li>
+        <li><a href="learn.html">Learn</a></li>
         <li><a href="patterns.html">Patterns</a></li>
         <li><a href="tips.html">Tips</a></li>
       </ul>
@@ -66,6 +80,14 @@
       <p class="eyebrow">Interactive Problem Library</p>
       <h1>Algorithm Patterns, Visualized</h1>
       <p class="lede">Step through real recurrences and data structures one move at a time, then read the pattern that ties them together. Start with a problem below, browse the <a href="patterns.html">pattern field guide</a>, or read the <a href="tips.html">solving tips</a> first.</p>
+
+      <a class="course-banner" href="learn.html">
+        <span class="cb-text">
+          <span class="cb-eyebrow">New to dynamic programming?</span>
+          <span class="cb-desc">Take the guided course: four problems in increasing difficulty, each adding one idea. Built for total beginners, no coding experience needed.</span>
+        </span>
+        <span class="cb-btn">Start the course</span>
+      </a>
 
       <div class="search-row">
         <label for="searchInput">Search problems</label>

@@ -1,0 +1,449 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>House Robber: 1D Dynamic Programming, Visualized</title>
+<meta name="description" content="The take-it-or-leave-it step into dynamic programming: choose the best houses to rob without ever robbing two in a row, one house at a time.">
+<link rel="icon" href="../assets/img/favicon.svg">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../assets/css/base.css">
+<style>
+  /* Bespoke to this problem: the same 1D strip, now the choice at each house is take it or
+     skip it, keeping the larger total. */
+  :root{ --scell:clamp(46px,12vw,66px); }
+
+  .level-chip{display:inline-block;font-family:var(--mono);font-size:11px;font-weight:700;letter-spacing:.06em;
+    text-transform:uppercase;color:var(--accent);border:1px solid var(--accent);border-radius:999px;padding:3px 10px;margin-bottom:14px}
+
+  .means{background:var(--surface);border:1px solid var(--border);border-left:3px solid var(--accent);
+    border-radius:var(--radius);padding:16px 18px;margin-top:24px}
+  .means .k{font-family:var(--mono);font-size:12px;letter-spacing:.05em;text-transform:uppercase;color:var(--accent);font-weight:600}
+  .means p{margin-top:6px;color:var(--text);line-height:1.5}
+
+  .strip{display:flex;gap:8px;justify-content:center;flex-wrap:wrap;align-items:flex-end}
+  .col{display:flex;flex-direction:column;align-items:center;gap:6px}
+  .numsbox{width:var(--scell);min-height:36px;display:flex;flex-direction:column;align-items:center;justify-content:center;
+    background:var(--surface);border:1px dashed var(--border);border-radius:8px;font-family:var(--mono);padding:4px 2px}
+  .numsbox .lab{font-size:8.5px;color:var(--text-faint);letter-spacing:.04em;text-transform:uppercase}
+  .numsbox .cv{font-size:clamp(12px,2.8vw,15px);color:var(--text-muted)}
+  .numsbox.robbed{border-style:solid;border-color:var(--accent);background:var(--accent-soft)}
+  .numsbox.robbed .cv{color:var(--accent);font-weight:700}
+
+  .scell{width:var(--scell);min-height:var(--scell);display:flex;flex-direction:column;align-items:center;
+    justify-content:center;gap:3px;position:relative;background:var(--surface-2);border:1px solid var(--border);
+    border-radius:10px;
+    transition:background .35s var(--ease),border-color .35s var(--ease),transform .35s var(--ease),box-shadow .35s var(--ease);}
+  .scell .ix{font-family:var(--mono);font-size:10px;color:var(--text-muted)}
+  .scell .vv{font-family:var(--mono);font-size:clamp(15px,3.4vw,20px);color:var(--text-faint);font-weight:600}
+  .scell.settled .vv{color:var(--text)}
+  .scell.boundary.settled .vv{color:var(--text-muted)}
+  .scell.active{border-color:var(--text);transform:scale(1.08);z-index:2}
+  .scell.active .vv{color:var(--text);font-weight:700}
+  .scell.src-back1{border-color:var(--accent);box-shadow:0 0 0 2px var(--accent-soft)}
+  .scell.src-back2{border-color:var(--left);box-shadow:0 0 0 2px var(--left-soft)}
+  .scell.chosen{background:var(--accent-soft)}
+
+  .mini-strip{display:flex;gap:5px;justify-content:center;flex-wrap:wrap;align-items:flex-end}
+  .mini-col{display:flex;flex-direction:column;align-items:center;gap:4px}
+  .mini-cost{width:clamp(30px,7.6vw,44px);min-height:24px;display:flex;align-items:center;justify-content:center;
+    background:var(--surface);border:1px dashed var(--border);border-radius:6px;font-family:var(--mono);
+    font-size:clamp(10px,2.2vw,12px);color:var(--text-faint)}
+  .mini-dp{width:clamp(30px,7.6vw,44px);min-height:clamp(30px,7.6vw,44px);display:flex;flex-direction:column;
+    align-items:center;justify-content:center;gap:1px;background:var(--surface-2);border:1px solid var(--border);
+    border-radius:6px;font-family:var(--mono)}
+  .mini-dp .ix{font-size:8px;color:var(--text-muted)}
+  .mini-dp .vv{font-size:clamp(12px,2.6vw,15px);color:var(--text)}
+  .mini-dp.win{background:var(--accent-soft);border-color:var(--accent)}
+  .mini-dp.win .vv{color:var(--accent);font-weight:700}
+
+  .idea-diagram{display:flex;align-items:center;justify-content:center;gap:clamp(6px,2.4vw,16px);flex-wrap:wrap;margin:36px 0 26px}
+  .idea-cell{width:clamp(122px,27vw,164px);min-height:66px;border-radius:10px;display:flex;flex-direction:column;
+    align-items:center;justify-content:center;text-align:center;font-family:var(--mono);font-size:clamp(10px,2vw,12px);
+    border:1px solid var(--border);background:var(--surface);color:var(--text-muted);padding:8px}
+  .idea-cell b{font-size:12px;color:var(--text);font-weight:600;display:block;margin-top:4px}
+  .idea-cell.back1{border-color:var(--accent);color:var(--accent)} .idea-cell.back1 b{color:var(--accent)}
+  .idea-cell.back2{border-color:var(--left);color:var(--left)} .idea-cell.back2 b{color:var(--left)}
+  .idea-cell.target{background:var(--accent-soft);border-color:var(--accent);color:var(--text)} .idea-cell.target b{color:var(--text);font-size:13px}
+  .idea-op{font-family:var(--mono);font-size:clamp(15px,3.6vw,20px);color:var(--text-faint)}
+
+  .derivation{font-family:var(--mono);text-align:center;font-size:clamp(12px,2.4vw,16px);color:var(--text);
+    background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:18px;margin-top:8px}
+  .derivation .b1{color:var(--accent)} .derivation .b2{color:var(--left)}
+
+  .row-tag{font-family:var(--mono);font-size:11px;color:var(--text-faint);text-align:center;margin-bottom:16px}
+  .result-cap{text-align:center;margin-top:16px;font-size:14px}
+</style>
+</head>
+<body>
+<a class="skip-link" href="#main">Skip to content</a>
+
+<nav class="nav">
+  <div class="wrap">
+    <a class="wordmark" href="../index.html"><span class="dot">▣</span> algo-patterns</a>
+    <div class="nav-actions">
+      <ul class="nav-links">
+        <li><a href="../index.html" aria-current="page">Problems</a></li>
+        <li><a href="../learn.html">Learn</a></li>
+        <li><a href="../patterns.html">Patterns</a></li>
+        <li><a href="../tips.html">Tips</a></li>
+      </ul>
+      <div class="fs-control" role="group" aria-label="Text size">
+        <button type="button" class="fs-btn" id="fsDown" aria-label="Decrease text size">A&minus;</button>
+        <button type="button" class="fs-btn fs-readout" id="fsReset" aria-label="Reset text size" title="Reset text size">100%</button>
+        <button type="button" class="fs-btn" id="fsUp" aria-label="Increase text size">A+</button>
+      </div>
+    </div>
+  </div>
+</nav>
+
+<main id="main">
+
+  <section class="hero" id="top">
+    <div class="wrap hero-grid">
+      <div>
+        <span class="level-chip">Course level 3</span>
+        <p class="eyebrow">Dynamic Programming · Take or Skip</p>
+        <h1>House Robber</h1>
+        <p class="lede">A row of houses, each holding some money. You want the largest haul, but the alarms are wired so you can never rob two houses that sit next to each other. Which houses do you take?</p>
+        <div class="formula-pill"><span class="mono">dp[i] = max(<b>dp[i-1]</b>, <b>dp[i-2]+nums[i]</b>)</span></div>
+        <p class="formula-note muted">At each house, take the better of two plans: skip this house, or rob it plus the best from two houses back.</p>
+        <a class="scroll-cue" href="#visualizer">
+          See it build
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M6 9l6 6 6-6"/></svg>
+        </a>
+      </div>
+      <div class="hero-visual">
+        <div class="mini-strip" id="heroStrip"></div>
+        <p class="hero-visual-cap">houses = [2, 7, 9, 3, 1] → best haul <b>12</b> (rob houses 0, 2, 4).</p>
+      </div>
+    </div>
+  </section>
+
+  <section id="problem">
+    <div class="wrap">
+      <p class="eyebrow">The Problem</p>
+      <h2>The choice is take it or leave it</h2>
+      <p class="lede">In the last two problems, both routes into a stair were always allowed. Here you face a real decision at every house: rob it or skip it. Robbing a house forbids the one right before it, so the two choices lead to different pasts. Dynamic programming keeps the best total under each choice, so you never have to guess.</p>
+
+      <div class="means">
+        <span class="k">What dp[i] means, in words</span>
+        <p>dp[i] is the most money you can rob from the houses up to and including house i. The final answer is the value in the last cell.</p>
+      </div>
+
+      <div class="callout-row" style="margin-top:24px">
+        <div class="callout">
+          <h3>First house (house 0)</h3>
+          <p>With only one house in view, there is nothing to compare against. Rob it. So dp[0] = nums[0].</p>
+        </div>
+        <div class="callout">
+          <h3>First two houses (house 1)</h3>
+          <p>The two are adjacent, so you cannot take both. Rob whichever holds more. So dp[1] = max(nums[0], nums[1]).</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="idea">
+    <div class="wrap">
+      <p class="eyebrow">The Key Idea</p>
+      <h2>At each house, weigh two plans</h2>
+      <p class="lede">Stand at house i. Plan one: skip it, and keep whatever was best up to the house before it. Plan two: rob it, adding its money to the best total from two houses back, since the house right before is now off limits. Keep the larger of the two plans. That is the whole solution.</p>
+
+      <div class="idea-diagram">
+        <div class="idea-cell back1">skip house i<b>dp[i-1]</b></div>
+        <div class="idea-op">vs</div>
+        <div class="idea-cell back2">rob house i<b>dp[i-2] + nums[i]</b></div>
+        <div class="idea-op">→</div>
+        <div class="idea-cell target">keep the larger<b>dp[i]</b></div>
+      </div>
+
+      <div class="derivation">dp[i] = max( <span class="b1">dp[i-1]</span> , <span class="b2">dp[i-2] + nums[i]</span> )</div>
+    </div>
+  </section>
+
+  <section id="visualizer">
+    <div class="wrap">
+      <p class="eyebrow">Try It</p>
+      <h2>Walk the street, house by house</h2>
+      <p class="lede">Press play, or step through it. The top row is the money in each house. The bottom row is the best haul possible up to that house. Watch each house decide between skipping and robbing.</p>
+
+      <div class="viz-panel">
+        <div class="viz-toolbar">
+          <div class="transport">
+            <button class="ctrl-btn" id="btnReset" aria-label="Reset">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M3 12a9 9 0 1 1 3 6.7"/><path d="M3 4v5h5"/></svg>
+            </button>
+            <button class="ctrl-btn" id="btnBack" aria-label="Step back">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M15 6l-6 6 6 6"/></svg>
+            </button>
+            <button class="ctrl-btn primary" id="btnPlay" aria-label="Play">
+              <svg id="iconPlay" viewBox="0 0 24 24" fill="currentColor"><path d="M7 5l13 7-13 7z"/></svg>
+              <svg id="iconPause" viewBox="0 0 24 24" fill="currentColor" style="display:none"><path d="M7 5h3v14H7zM14 5h3v14h-3z"/></svg>
+            </button>
+            <button class="ctrl-btn" id="btnFwd" aria-label="Step forward">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"/></svg>
+            </button>
+            <button class="ctrl-btn speed-btn" id="btnSpeed">1×</button>
+          </div>
+          <p class="step-readout">Step <b id="stepNow">0</b> / <span id="stepMax">0</span></p>
+        </div>
+
+        <p class="row-tag" id="rowTag">Press play to start walking the street</p>
+        <div class="grid-stage">
+          <div class="strip" id="dpStrip"></div>
+        </div>
+
+        <div class="formula-readout" id="formulaReadout" aria-live="polite">Press play or step forward to begin.</div>
+      </div>
+      <p class="viz-caption">The amber ring marks the <span style="color:var(--accent)">skip</span> plan (best up to the previous house); the teal ring marks the <span style="color:var(--left)">rob</span> plan (this house plus the best from two back).</p>
+    </div>
+  </section>
+
+  <section id="result">
+    <div class="wrap">
+      <p class="eyebrow">The Result</p>
+      <h2>The filled answer row</h2>
+      <p class="lede">For this street, the recurrence produces the bottom row below. The last cell holds the best haul.</p>
+      <div class="mini-strip" id="resultStrip" aria-label="Filled DP strip for the house example"></div>
+      <p class="result-cap muted">Best possible haul: <b style="color:var(--accent)">12</b>, by robbing houses 0, 2, and 4.</p>
+    </div>
+  </section>
+
+  <section id="code">
+    <div class="wrap">
+      <p class="eyebrow">The Code</p>
+      <h2>Same idea, two implementations</h2>
+      <p class="lede">The change from Min Cost Climbing Stairs is only the operator and what the two routes mean: min became max, and the routes became skip versus rob.</p>
+
+      <div class="editor">
+        <div class="editor-bar">
+          <div class="traffic"><span></span><span></span><span></span></div>
+          <div class="editor-tabs" role="tablist" aria-label="Code samples">
+            <button role="tab" id="tabArr" aria-selected="true">HouseRobber.java</button>
+            <button role="tab" id="tabOpt" aria-selected="false">TwoVariables.java</button>
+          </div>
+        </div>
+        <div class="editor-body"><pre id="codeBody"></pre></div>
+        <p class="editor-note" id="codeNote"></p>
+      </div>
+    </div>
+  </section>
+
+  <section id="complexity">
+    <div class="wrap">
+      <p class="eyebrow">Complexity</p>
+      <h2>What the optimization actually buys you</h2>
+      <div class="complexity-row">
+        <div class="complexity-card">
+          <h3>Array</h3>
+          <div class="complexity-stat"><span class="muted">Time</span><b>O(n)</b></div>
+          <div class="complexity-stat"><span class="muted">Space</span><b>O(n)</b></div>
+        </div>
+        <div class="complexity-card">
+          <h3>Two variables</h3>
+          <div class="complexity-stat"><span class="muted">Time</span><b>O(n)</b></div>
+          <div class="complexity-stat"><span class="muted">Space</span><b>O(1)</b></div>
+        </div>
+      </div>
+      <p class="lede" style="margin-top:18px">One pass down the street, a fixed amount of remembered state. The same profile as every 1D problem before it.</p>
+    </div>
+  </section>
+
+  <section id="pattern">
+    <div class="wrap">
+      <p class="eyebrow">Pattern To Remember</p>
+      <div class="pattern-card">
+        <p class="lead">When each item offers a take-it-or-leave-it choice, and taking one blocks a neighbor, track the best total under each choice.</p>
+        <p class="pattern-strip">dp[i] = max(skip: dp[i-1], take: dp[i-2] + value[i])</p>
+        <p class="lede">The same take-or-skip shape appears in House Robber II, Delete and Earn, and many subsequence problems. Next on the course: <a href="unique-paths.html">Unique Paths</a>, where the strip grows into a two-dimensional grid.</p>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<footer>
+  <div class="wrap footer-row">
+    <span>Part of <a href="../index.html">Algorithm Patterns, Visualized</a>. Follow the <a href="../learn.html">course</a> or read the <a href="../patterns.html#dynamic-programming">Dynamic Programming field guide</a>.</span>
+    <span>Runs entirely in your browser. Respects reduced motion.</span>
+  </div>
+</footer>
+
+<script src="../assets/js/step-player.js"></script>
+<script src="../assets/js/code-panel.js"></script>
+<script>
+(function(){
+  "use strict";
+  var NUMS = [2, 7, 9, 3, 1];
+  var N = NUMS.length;
+
+  function computeDp(){
+    var dp = new Array(N).fill(0);
+    dp[0] = NUMS[0];
+    if (N > 1) dp[1] = Math.max(NUMS[0], NUMS[1]);
+    for (var i = 2; i < N; i++){
+      dp[i] = Math.max(dp[i-1], dp[i-2] + NUMS[i]);
+    }
+    return dp;
+  }
+
+  function buildSteps(){
+    var dp = computeDp();
+    var steps = [];
+    for (var i = 0; i < N; i++){
+      var skip = i >= 2 ? dp[i-1] : null;             // amber, one back
+      var rob  = i >= 2 ? dp[i-2] + NUMS[i] : null;    // teal, two back
+      steps.push({
+        i: i, value: dp[i], base: i < 2,
+        skip: skip, rob: rob,
+        chose: i >= 2 ? (rob > skip ? "rob" : "skip") : null
+      });
+    }
+    return { dp: dp, steps: steps };
+  }
+
+  var DATA = buildSteps();
+  var TOTAL = DATA.steps.length;
+
+  function renderMiniStrip(el){
+    el.innerHTML = "";
+    for (var i = 0; i < N; i++){
+      var col = document.createElement("div"); col.className = "mini-col";
+      var money = document.createElement("div"); money.className = "mini-cost"; money.textContent = NUMS[i];
+      var dp = document.createElement("div");
+      dp.className = "mini-dp" + (i === N - 1 ? " win" : "");
+      var ix = document.createElement("span"); ix.className = "ix"; ix.textContent = i;
+      var vv = document.createElement("span"); vv.className = "vv"; vv.textContent = DATA.dp[i];
+      dp.appendChild(ix); dp.appendChild(vv);
+      col.appendChild(money); col.appendChild(dp);
+      el.appendChild(col);
+    }
+  }
+  renderMiniStrip(document.getElementById("heroStrip"));
+  renderMiniStrip(document.getElementById("resultStrip"));
+
+  var stripEl = document.getElementById("dpStrip");
+  var rowTagEl = document.getElementById("rowTag");
+  var formulaEl = document.getElementById("formulaReadout");
+
+  function render(current){
+    stripEl.innerHTML = "";
+    rowTagEl.textContent = current < 0
+      ? "Press play to start walking the street"
+      : (current < 2
+          ? "Base case: house " + current + " (decided directly, not by the recurrence)"
+          : "House " + current + ": weigh skipping against robbing, keep the larger");
+
+    var active = current >= 0 ? DATA.steps[current] : null;
+
+    for (var i = 0; i < N; i++){
+      var s = DATA.steps[i];
+      var col = document.createElement("div"); col.className = "col";
+
+      var money = document.createElement("div");
+      money.className = "numsbox";
+      // Mark the active house's money box as robbed only when the optimal choice at this step
+      // takes this house: house 0 always; house 1 only if it is the richer of the first two;
+      // any later house when robbing beats skipping.
+      if (active && i === current){
+        var robsThisHouse = active.base
+          ? (active.i === 0 || (active.i === 1 && NUMS[1] >= NUMS[0]))
+          : (active.chose === "rob");
+        if (robsThisHouse) money.className += " robbed";
+      }
+      money.innerHTML = '<span class="lab">house</span><span class="cv">' + NUMS[i] + '</span>';
+
+      var cell = document.createElement("div");
+      cell.className = "scell" + (s.base ? " boundary" : "");
+      if (i <= current) cell.classList.add("settled");
+      if (i === current) cell.classList.add("active");
+      if (active && current >= 2){
+        if (i === current - 1){
+          cell.classList.add("src-back1");
+          if (active.chose === "skip") cell.classList.add("chosen");
+        }
+        if (i === current - 2){
+          cell.classList.add("src-back2");
+          if (active.chose === "rob") cell.classList.add("chosen");
+        }
+      }
+      var ix = document.createElement("span"); ix.className = "ix"; ix.textContent = i;
+      var vv = document.createElement("span"); vv.className = "vv";
+      vv.textContent = i <= current ? s.value : "";
+      cell.appendChild(ix); cell.appendChild(vv);
+
+      col.appendChild(money); col.appendChild(cell);
+      stripEl.appendChild(col);
+    }
+  }
+
+  function renderFormula(current){
+    if (current < 0){ formulaEl.textContent = "Press play or step forward to begin."; return; }
+    var s = DATA.steps[current];
+    if (s.i === 0){ formulaEl.textContent = "dp[0] = nums[0] = " + NUMS[0] + "  (one house in view, rob it)"; return; }
+    if (s.i === 1){ formulaEl.textContent = "dp[1] = max(nums[0], nums[1]) = max(" + NUMS[0] + ", " + NUMS[1] + ") = " + s.value + "  (adjacent, rob the richer)"; return; }
+    var winWord = s.chose === "rob" ? "rob house " + s.i : "skip house " + s.i;
+    formulaEl.innerHTML = "dp[" + s.i + "] = max( <span class='ft'>" + s.skip + "</span>, <span class='fl'>" + s.rob +
+      "</span> ) = <b>" + s.value + "</b>  (" + winWord + ")";
+  }
+
+  function renderAtStep(current){ render(current); renderFormula(current); }
+
+  StepPlayer.create({ totalSteps: TOTAL, onChange: renderAtStep });
+
+  CodePanel.create({
+    types: ["Solution", "Math"],
+    tabs: [
+      {
+        id: "tabArr",
+        note: "dp[i] is the most money you can rob from houses 0..i. Robbing house i forbids house i-1, so it pairs with dp[i-2].",
+        lines: [
+          ["class Solution {", null],
+          ["    public int rob(int[] nums) {", null],
+          ["        int n = nums.length;", null],
+          ["        if (n == 1) return nums[0];", null],
+          ["", null],
+          ["        int[] dp = new int[n];", null],
+          ["        dp[0] = nums[0];", null],
+          ["        dp[1] = Math.max(nums[0], nums[1]);", null],
+          ["", null],
+          ["        // Skip house i, or rob it plus the best up to two houses back", "cm"],
+          ["        for (int i = 2; i < n; i++) {", null],
+          ["            dp[i] = Math.max(dp[i - 1], dp[i - 2] + nums[i]);", null],
+          ["        }", null],
+          ["", null],
+          ["        return dp[n - 1];", null],
+          ["    }", null],
+          ["}", null]
+        ]
+      },
+      {
+        id: "tabOpt",
+        note: "Both running totals start at 0, which handles the base cases for free as the loop meets the first two houses.",
+        lines: [
+          ["class Solution {", null],
+          ["    public int rob(int[] nums) {", null],
+          ["        int twoBack = 0;   // best haul ending two houses back", null],
+          ["        int oneBack = 0;   // best haul ending one house back", null],
+          ["", null],
+          ["        for (int money : nums) {", null],
+          ["            int current = Math.max(oneBack, twoBack + money);", null],
+          ["            twoBack = oneBack;", null],
+          ["            oneBack = current;", null],
+          ["        }", null],
+          ["", null],
+          ["        return oneBack;", null],
+          ["    }", null],
+          ["}", null]
+        ]
+      }
+    ]
+  });
+})();
+</script>
+<script src="../assets/js/font-scale.js"></script>
+</body>
+</html>
