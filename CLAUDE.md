@@ -85,8 +85,8 @@ node tools/gates/anti-slop-gate.mjs problems/<slug>.html [other touched files]
 node tools/gates/contrast-gate.mjs .superdesign/<slug>/contrast-pairs.json
 ```
 - `anti-slop-gate.mjs`: static lint over the source -- bans em/en-dash in copy, default
-  AI-purple/neon accents, Inter-as-default-font, bounce/elastic easing, pure `#000`/`#fff`,
-  placeholder names (Acme/John Doe/etc.), filler verbs (elevate/seamless/unleash/...), manual
+  AI-purple/neon accents, Inter-as-default-font, bounce/elastic easing, pure `#000`/`#fff`, <!-- taste-ok: this line names the banned tokens; it is documentation, not a design surface -->
+  placeholder names (Acme/John Doe/etc.), filler verbs (elevate/seamless/unleash/...), manual <!-- taste-ok: this line names the banned tokens; it is documentation, not a design surface -->
   scroll-position listeners. Fix the design, never the gate.
 - `contrast-gate.mjs`: computes real WCAG contrast ratios for every fg/bg pair you enumerate in
   `contrast-pairs.json` (4.5 normal text, 3 large text). Enumerate **every** pair actually used,
