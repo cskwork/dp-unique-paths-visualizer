@@ -29,6 +29,7 @@
   .qcard h3{font-size:calc(16.5px * var(--fs));margin:7px 0 6px;line-height:1.35}
   .qcard p{font-size:calc(14.5px * var(--fs));color:var(--text-muted);line-height:1.5}
   .qcard code{font-family:var(--mono);font-size:calc(13.5px * var(--fs));color:var(--text)}
+  .lede code{font-family:var(--mono);font-size:calc(15px * var(--fs));color:var(--text)}
 
   /* the vertical course path */
   .course-path{margin-top:30px}
@@ -59,6 +60,60 @@
     background:var(--accent);color:var(--accent-ink);border-radius:var(--radius);padding:12px 20px}
   .start-btn.ghost{background:transparent;color:var(--text);border:1px solid var(--border)}
   .start-btn.ghost:hover{border-color:var(--text-faint)}
+
+  /* the hand-worked example: four panels, each one sentence plus a row of boxes.
+     teal = a box being read, accent fill = the box being written. Static on purpose:
+     this page is the map; the pressing-play happens inside the four problems. */
+  .panels{display:grid;gap:14px;margin-top:26px}
+  .panel{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);
+    padding:20px 22px;display:grid;grid-template-columns:auto 1fr;gap:16px;align-items:start}
+  .panel .pn{font-family:var(--mono);font-size:calc(13px * var(--fs));font-weight:700;color:var(--accent);padding-top:3px}
+  .panel p{font-size:calc(15px * var(--fs));color:var(--text-muted);line-height:1.55;max-width:56ch}
+  .panel p b{color:var(--text);font-weight:600}
+  .boxrow{display:flex;gap:12px;margin-top:14px;flex-wrap:wrap}
+  .dpbox{width:60px}
+  .dpbox .cell{height:52px;border:1px solid var(--border);border-radius:var(--radius-sm);background:var(--surface-2);
+    display:flex;align-items:center;justify-content:center;font-family:var(--mono);font-weight:700;
+    font-size:calc(19px * var(--fs));color:var(--text)}
+  .dpbox .cap{display:block;text-align:center;font-family:var(--mono);font-size:calc(11.5px * var(--fs));
+    color:var(--text-muted);margin-top:6px}
+  .dpbox.read .cell{border-color:var(--left);color:var(--left)}
+  .dpbox.write .cell{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
+  .panel-sum{font-family:var(--mono);font-size:calc(13.5px * var(--fs));color:var(--text-muted);margin-top:12px}
+  .panel-sum b{color:var(--accent);font-weight:600}
+
+  /* the with/without notepad comparison */
+  .race{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:24px}
+  @media (max-width:560px){.race{grid-template-columns:1fr}}
+  .race-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:22px}
+  .race-card .tag{font-family:var(--mono);font-size:calc(12px * var(--fs));letter-spacing:.04em;
+    text-transform:uppercase;color:var(--text-muted);font-weight:600}
+  .race-card .big{display:block;font-family:var(--mono);font-weight:700;
+    font-size:calc(clamp(26px,4.5vw,34px) * var(--fs));color:var(--text);margin:10px 0 8px}
+  .race-card.win .big{color:var(--accent)}
+  .race-card p{font-size:calc(14.5px * var(--fs));color:var(--text-muted);line-height:1.5}
+
+  /* per-level exit criterion */
+  .level-clear{font-size:calc(14px * var(--fs));color:var(--text-muted);line-height:1.5;
+    margin-top:12px;padding-top:12px;border-top:1px dashed var(--border-soft)}
+  .level-clear b{font-family:var(--mono);font-size:calc(12px * var(--fs));font-weight:600;
+    letter-spacing:.04em;text-transform:uppercase;color:var(--left)}
+
+  /* the road past level 4 */
+  .stages{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:16px;margin-top:24px}
+  .stage{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:20px}
+  .stage .sn{font-family:var(--mono);font-size:calc(12px * var(--fs));letter-spacing:.04em;
+    text-transform:uppercase;color:var(--accent);font-weight:600}
+  .stage h3{font-size:calc(16.5px * var(--fs));margin:7px 0 6px;line-height:1.35}
+  .stage p{font-size:calc(14.5px * var(--fs));color:var(--text-muted);line-height:1.5}
+  .mastery-check{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);
+    padding:22px;margin-top:16px}
+  .mastery-check h3{font-size:calc(17px * var(--fs));margin-bottom:10px}
+  .mastery-check ul{list-style:none;margin:0;padding:0}
+  .mastery-check li{font-size:calc(15px * var(--fs));color:var(--text-muted);line-height:1.6;
+    padding-left:22px;position:relative}
+  .mastery-check li::before{content:"\2713";position:absolute;left:0;color:var(--accent);
+    font-family:var(--mono);font-weight:700}
 </style>
 </head>
 <body>
@@ -88,7 +143,7 @@
     <div class="wrap">
       <p class="eyebrow">The Dynamic Programming Course</p>
       <h1>Dynamic programming, one small step at a time</h1>
-      <p class="lede">This course is for anyone, including people who have never written a line of code. Dynamic programming has a scary name and a simple heart. You will meet the idea in plain words, then climb four problems in order, watching each one build its answer cell by cell. No prior algorithms needed. Bring patience and a willingness to press play.</p>
+      <p class="lede">This course is for anyone, including people who have never written a line of code. Dynamic programming has a scary name and a simple heart. You will meet the idea in plain words, watch one tiny example solved by hand right on this page, then climb four problems in order, each with a clear "you have cleared this level when" test. No prior algorithms needed. Bring patience and a willingness to press play.</p>
       <div class="start-strip">
         <a class="start-btn" href="problems/climbing-stairs.html">Start level 1: Climbing Stairs</a>
         <a class="start-btn ghost" href="#path">See the full path</a>
@@ -121,11 +176,91 @@
     </div>
   </section>
 
+  <section id="worked">
+    <div class="wrap">
+      <p class="eyebrow">See It Once</p>
+      <h2>One tiny problem, solved by hand</h2>
+      <p class="lede">Words only go so far, so here is the whole trick on four stairs. You can climb 1 or 2 stairs at a time, and you want to know how many different ways there are to reach the top. Watch the boxes fill. This takes one minute, and it is the same move every DP problem in existence makes.</p>
+      <div class="panels">
+        <div class="panel">
+          <span class="pn">1</span>
+          <div>
+            <p><b>Draw one box per stair.</b> Each box will hold a single number: how many ways there are to reach that stair. Right now nobody knows any of them, and that is fine.</p>
+            <div class="boxrow">
+              <span class="dpbox"><span class="cell"></span><span class="cap">stair 1</span></span>
+              <span class="dpbox"><span class="cell"></span><span class="cap">stair 2</span></span>
+              <span class="dpbox"><span class="cell"></span><span class="cap">stair 3</span></span>
+              <span class="dpbox"><span class="cell"></span><span class="cap">stair 4</span></span>
+            </div>
+          </div>
+        </div>
+        <div class="panel">
+          <span class="pn">2</span>
+          <div>
+            <p><b>Fill the easy ones with your fingers.</b> Stair 1 can be reached exactly one way: a single small step. Stair 2 can be reached two ways: two small steps, or one double step. No formula, just counting on one hand.</p>
+            <div class="boxrow">
+              <span class="dpbox"><span class="cell">1</span><span class="cap">stair 1</span></span>
+              <span class="dpbox"><span class="cell">2</span><span class="cap">stair 2</span></span>
+              <span class="dpbox"><span class="cell"></span><span class="cap">stair 3</span></span>
+              <span class="dpbox"><span class="cell"></span><span class="cap">stair 4</span></span>
+            </div>
+          </div>
+        </div>
+        <div class="panel">
+          <span class="pn">3</span>
+          <div>
+            <p><b>Let one rule fill the next box.</b> Every way to stand on stair 3 arrived from stair 2 (a small step) or from stair 1 (a double step). There is no third door in. So the box for stair 3 is simply the two earlier boxes, added.</p>
+            <div class="boxrow">
+              <span class="dpbox read"><span class="cell">1</span><span class="cap">read</span></span>
+              <span class="dpbox read"><span class="cell">2</span><span class="cap">read</span></span>
+              <span class="dpbox write"><span class="cell">3</span><span class="cap">write</span></span>
+              <span class="dpbox"><span class="cell"></span><span class="cap">stair 4</span></span>
+            </div>
+            <p class="panel-sum">box 3 = box 2 + box 1 = 2 + 1 = <b>3</b></p>
+          </div>
+        </div>
+        <div class="panel">
+          <span class="pn">4</span>
+          <div>
+            <p><b>Repeat, and the answer falls out.</b> The same rule fills stair 4 from stairs 3 and 2. Five ways to climb four stairs, and notice what never happened: no route was ever listed, and no box was ever computed twice. The boxes did all the work.</p>
+            <div class="boxrow">
+              <span class="dpbox"><span class="cell">1</span><span class="cap">stair 1</span></span>
+              <span class="dpbox read"><span class="cell">2</span><span class="cap">read</span></span>
+              <span class="dpbox read"><span class="cell">3</span><span class="cap">read</span></span>
+              <span class="dpbox write"><span class="cell">5</span><span class="cap">write</span></span>
+            </div>
+            <p class="panel-sum">box 4 = box 3 + box 2 = 3 + 2 = <b>5</b></p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="why">
+    <div class="wrap">
+      <p class="eyebrow">Why Bother</p>
+      <h2>What writing answers down actually buys you</h2>
+      <p class="lede">Four stairs is cute. The trick matters at forty. Without the notepad, a computer answers "how many ways up 40 stairs?" by re-asking the same small questions over and over, because every big question re-asks the two below it, and each of those re-asks its own two. With the notepad, every question is asked once, answered once, and read for free ever after.</p>
+      <div class="race">
+        <div class="race-card">
+          <span class="tag">Without the notepad</span>
+          <span class="big">331,160,281</span>
+          <p>little questions asked to count the ways up 40 stairs, almost all of them repeats of one another. The pile roughly doubles with every extra stair.</p>
+        </div>
+        <div class="race-card win">
+          <span class="tag">With the notepad</span>
+          <span class="big">40</span>
+          <p>boxes filled, one per stair, each with a single addition. Stair 41 costs one more box, not double the work. That is the entire speed-up, and you just watched it.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
   <section id="setup">
     <div class="wrap">
       <p class="eyebrow">The Setup</p>
       <h2>Four questions that unlock any DP problem</h2>
-      <p class="lede">You do not start by writing code. You start by answering these four questions in plain words. Every problem in this course is just these four answers, filled in. The first one matters most: if you cannot say what a saved answer means, nothing after it will make sense.</p>
+      <p class="lede">You do not start by writing code. You start by answering these four questions in plain words. Every problem in this course is just these four answers, filled in. One naming note before they appear: in code, the row of boxes you just watched is called <code>dp</code>, and box number i is written <code>dp[i]</code>. Same boxes, shorter name. The first question matters most: if you cannot say what a saved answer means, nothing after it will make sense.</p>
       <div class="qgrid">
         <div class="qcard">
           <span class="qn">Question 1</span>
@@ -165,7 +300,8 @@
               <h3>Climbing Stairs</h3>
               <span class="diff easy">Easy</span>
             </div>
-            <p class="level-new"><b>New idea: add the two ways in.</b> Count how many ways there are to climb a staircase. To reach a stair, add the ways to reach the two stairs below it. This is the plainest possible recurrence.</p>
+            <p class="level-new"><b>New idea: add the two ways in.</b> Count how many ways there are to climb a staircase. To reach a stair, add the ways to reach the two stairs below it. This is the worked example above, grown up, with a play button.</p>
+            <p class="level-clear"><b>Cleared when</b> you can explain, without looking at the formula, why the ways into a stair are exactly the ways to the stair below plus the ways to the stair two below.</p>
             <div class="level-foot">
               <span class="level-rec">dp[i] = dp[i-1] + dp[i-2]</span>
               <span class="level-go">Start level 1 <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"/></svg></span>
@@ -181,6 +317,7 @@
               <span class="diff easy">Easy</span>
             </div>
             <p class="level-new"><b>New idea: keep the cheaper.</b> Now each stair has a price. The two routes into a stair are still there, but instead of adding them you keep the cheaper total. Add becomes min.</p>
+            <p class="level-clear"><b>Cleared when</b> you can say in one sentence why the plus turned into a min the moment stairs got prices.</p>
             <div class="level-foot">
               <span class="level-rec">dp[i] = min(dp[i-1]+cost[i-1], dp[i-2]+cost[i-2])</span>
               <span class="level-go">Start level 2 <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"/></svg></span>
@@ -196,6 +333,7 @@
               <span class="diff medium">Medium</span>
             </div>
             <p class="level-new"><b>New idea: take it or skip it.</b> A row of houses, no two neighbors allowed. At each house, weigh skipping against robbing, and keep the larger haul. Here the choice keeps the max.</p>
+            <p class="level-clear"><b>Cleared when</b> you can name the two choices at any house, skip it or rob it, and say which earlier box each choice reads.</p>
             <div class="level-foot">
               <span class="level-rec">dp[i] = max(dp[i-1], dp[i-2]+nums[i])</span>
               <span class="level-go">Start level 3 <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"/></svg></span>
@@ -211,6 +349,7 @@
               <span class="diff medium">Medium</span>
             </div>
             <p class="level-new"><b>New idea: one row becomes a grid.</b> The same reasoning, now in two dimensions. A robot counts paths across a grid, and each cell adds the cell above and the cell to its left. The row you mastered grows a second axis.</p>
+            <p class="level-clear"><b>Cleared when</b> you can point at any cell in the grid, name the two cells it adds, and say in words what its number means.</p>
             <div class="level-foot">
               <span class="level-rec">dp[r][c] = dp[r-1][c] + dp[r][c-1]</span>
               <span class="level-go">Start level 4 <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"/></svg></span>
@@ -242,11 +381,50 @@
     </div>
   </section>
 
+  <section id="mastery">
+    <div class="wrap">
+      <p class="eyebrow">After The Course</p>
+      <h2>The road from here to mastery</h2>
+      <p class="lede">The four levels teach one shape: a line of boxes, then a grid, filled in order. Mastery is meeting new shapes and noticing they are the same four questions wearing different clothes. These are the classic next stages, in a sensible order. They are not on this site yet, but the four questions travel with you and are enough to attempt every one of them anywhere.</p>
+      <div class="stages">
+        <div class="stage">
+          <span class="sn">Stage 5</span>
+          <h3>Grids with walls and prices</h3>
+          <p>The Unique Paths grid again, but some cells are blocked or cost money to cross. Still two neighbors per cell; the choice flips between add and min. Classics: Unique Paths II, Minimum Path Sum.</p>
+        </div>
+        <div class="stage">
+          <span class="sn">Stage 6</span>
+          <h3>Choices under a budget</h3>
+          <p>Coins that must make an exact amount, items that must fit a bag. The box number stops meaning "position" and starts meaning "budget left". Classics: Coin Change, the knapsack family.</p>
+        </div>
+        <div class="stage">
+          <span class="sn">Stage 7</span>
+          <h3>Two sequences side by side</h3>
+          <p>Compare two words with a grid: one word down the side, one across the top, each cell scoring how well the beginnings match. Classics: Longest Common Subsequence, Edit Distance.</p>
+        </div>
+        <div class="stage">
+          <span class="sn">Stage 8</span>
+          <h3>A fact you carry along</h3>
+          <p>Sometimes one number per position is not enough, because you also carry a fact, like "am I currently holding the stock?". Keep one row of boxes per fact. Classics: stock problems with cooldown, Paint House.</p>
+        </div>
+      </div>
+      <div class="mastery-check">
+        <h3>You are getting close to mastery when</h3>
+        <ul>
+          <li>you can finish the sentence "dp[i] is the ___" for a brand-new problem before writing any code,</li>
+          <li>the story alone tells you whether to add, take the min, or take the max,</li>
+          <li>you fill and hand-check the first two boxes before trusting anything else,</li>
+          <li>and a problem you have never seen starts to feel like one you have.</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
   <section id="close">
     <div class="wrap">
       <div class="pattern-card">
         <p class="lead">You are not here to memorize templates.</p>
-        <p class="lede">A memorized template breaks the moment a problem is twisted. The four questions do not. Once naming the state and the choice feels natural, dynamic programming stops being a category of scary problems and becomes a habit you carry into new ones. When you are ready, read the <a href="tips.html">solving tips</a> for the wider habits, or browse the <a href="patterns.html#dynamic-programming">Dynamic Programming field guide</a>.</p>
+        <p class="lede">A memorized template breaks the moment a problem is twisted. The four questions do not. Once naming the state and the choice feels natural, dynamic programming stops being a category of scary problems and becomes a habit you carry into new ones, including every stage on the road above. When you are ready, read the <a href="tips.html">solving tips</a> for the wider habits, or browse the <a href="patterns.html#dynamic-programming">Dynamic Programming field guide</a>.</p>
         <div class="start-strip">
           <a class="start-btn" href="problems/climbing-stairs.html">Begin the course</a>
           <a class="start-btn ghost" href="index.html">Browse all problems</a>
